@@ -1445,6 +1445,11 @@ void ClientThink_real( gentity_t *ent ) {
 	if ( client->ps.powerups[PW_HASTE] ) {
 		client->ps.speed *= 1.3;
 	}
+	
+	// Increase speed by 50% when using Gauntlet
+	if ( client->ps.weapon == WP_GAUNTLET ) {
+		client->ps.speed *= 1.5;
+	}
 
 	// Let go of the hook if we aren't firing
 	if ( client->ps.weapon == WP_GRAPPLING_HOOK &&

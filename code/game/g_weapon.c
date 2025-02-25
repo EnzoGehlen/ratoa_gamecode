@@ -841,9 +841,10 @@ void Weapon_LightningFire( gentity_t *ent ) {
 	vec3_t		end;
 	vec3_t impactpoint, bouncedir;
 	gentity_t	*traceEnt, *tent;
-	int			damage, i, passent;
+	int			i, passent;
 
-	damage = g_lgDamage.integer * s_quadFactor;
+	// Set damage to 0 but keep knockback by passing damage value only to knockback
+	int knockback = g_lgDamage.integer * s_quadFactor;
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
@@ -899,24 +900,11 @@ void Weapon_LightningFire( gentity_t *ent ) {
 					ent->client->accuracy_hits++;
 					ent->client->accuracy[WP_LIGHTNING][1]++;
 				}
+				// Pass 0 as damage but keep knockback value
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-					damage, 0, MOD_LIGHTNING);
+					0, knockback, MOD_LIGHTNING);
 			}
 		}
-
-		if ( traceEnt->takedamage && traceEnt->client ) {
-			tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-			tent->s.otherEntityNum = traceEnt->s.number;
-			tent->s.eventParm = DirToByte( tr.plane.normal );
-			tent->s.weapon = ent->s.weapon;
-			tent->s.clientNum = ent->s.clientNum;
-		} else if ( !( tr.surfaceFlags & SURF_NOIMPACT ) ) {
-			tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
-			tent->s.eventParm = DirToByte( tr.plane.normal );
-			tent->s.weapon = ent->s.weapon;
-			tent->s.clientNum = ent->s.clientNum;
-		}
-
 		break;
 	}
 }

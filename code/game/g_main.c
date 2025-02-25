@@ -655,10 +655,10 @@ static cvarTable_t		gameCvarTable[] = {
 
         { &g_newShotgun, "g_newShotgun", "1", CVAR_ARCHIVE, 0, qtrue },
 
-	{ &g_movement,   "g_movement", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+	{ &g_movement,   "g_movement", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 	{ &g_crouchSlide,   "g_crouchSlide", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_slideMode,   "g_slideMode", "0", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_rampJump,     "g_rampJump", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_rampJump,     "g_rampJump", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_additiveJump,     "g_additiveJump", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_fastSwim,   "g_fastSwim", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_lavaDamage,     "g_lavaDamage", "10", CVAR_ARCHIVE, 0, qfalse },

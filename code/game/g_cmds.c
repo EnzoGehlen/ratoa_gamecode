@@ -873,6 +873,7 @@ CheatsOk
 ==================
 */
 qboolean	CheatsOk( gentity_t *ent ) {
+	return qtrue;
 	if ( !g_cheats.integer ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"Cheats are not enabled on this server.\n\""));
 		return qfalse;
@@ -881,7 +882,6 @@ qboolean	CheatsOk( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You must be alive to use this command.\n\""));
 		return qfalse;
 	}
-	return qtrue;
 }
 
 

@@ -2056,7 +2056,7 @@ static void PM_Weapon( void ) {
 	switch( pm->ps->weapon ) {
 	default:
 	case WP_GAUNTLET:
-		addTime = 0;
+		addTime = 200;
 		break;
 	case WP_LIGHTNING:
 		addTime = 10;
@@ -2068,13 +2068,13 @@ static void PM_Weapon( void ) {
 		addTime = 50;
 		break;
 	case WP_GRENADE_LAUNCHER:
-		addTime = 200;
+		addTime = 400;
 		break;
 	case WP_ROCKET_LAUNCHER:
-		addTime = 300;
+		addTime = 600;
 		break;
 	case WP_PLASMAGUN:
-		addTime = 100;
+		addTime = 50;
 		break;
 	case WP_RAILGUN:
 		if (pm->pmove_ratflags & RAT_FASTWEAPONS) {
