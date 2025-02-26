@@ -531,7 +531,7 @@ static void ProximityMine_Player( gentity_t *mine, gentity_t *player ) {
 
 	if( player->s.eFlags & EF_TICKING ) {
 		player->activator->splashDamage += mine->splashDamage;
-		player->activator->splashRadius *= 1.50;
+		player->activator->splashRadius *= 0.5;
 		mine->think = G_FreeEntity;
 		mine->nextthink = level.time;
 		return;
@@ -626,6 +626,14 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		( ent->s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) ) {
 		G_BounceMissile( ent, trace );
 		G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
+		
+		// Add here: if this is a grenade and it's moving slowly enough, activate proximity mode
+		if (ent->s.weapon == WP_GRENADE_LAUNCHER && VectorLength(ent->s.pos.trDelta) < 60) {
+			// Only set up proximity detection if the grenade has nearly stopped
+			ent->s.pos.trType = TR_STATIONARY;
+			Grenade_ProximityActivate(ent);
+		}
+		
 		return;
 	}
 
@@ -1021,7 +1029,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->parent = self;
 	bolt->damage = 100;
 	bolt->splashDamage = 100;
-	bolt->splashRadius = 500;
+	bolt->splashRadius = 500;  // Using smaller radius than default for proximity detection
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
 	bolt->clipmask = MASK_SHOT;
@@ -1273,7 +1281,7 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	bolt->parent = self;
 	bolt->damage = 0;
 	bolt->splashDamage = 100;
-	bolt->splashRadius = 150;
+	bolt->splashRadius = 1500;
 	bolt->methodOfDeath = MOD_PROXIMITY_MINE;
 	bolt->splashMethodOfDeath = MOD_PROXIMITY_MINE;
 	bolt->clipmask = MASK_SHOT;
@@ -1295,4 +1303,42 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorCopy (start, bolt->r.currentOrigin);
 
 	return bolt;
+}
+
+/*
+================
+Grenade_ProximityActivate
+================
+*/
+static void Grenade_ProximityActivate( gentity_t *ent ) {
+	gentity_t	*trigger;
+	float		r;
+
+	// Still keep the regular explode timer as backup
+	ent->think = G_ExplodeMissile;
+	ent->nextthink = level.time + 20000;  // 2 seconds after landing
+
+	// Create ticking sound to warn players
+	ent->s.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav" );
+
+	// build the proximity trigger
+	trigger = G_Spawn();
+
+	trigger->classname = "grenade_trigger";
+
+	// Use slightly smaller radius than prox mines
+	r = 150;
+	VectorSet( trigger->r.mins, -r, -r, -r );
+	VectorSet( trigger->r.maxs, r, r, r );
+
+	G_SetOrigin( trigger, ent->s.pos.trBase );
+
+	trigger->parent = ent;
+	trigger->r.contents = CONTENTS_TRIGGER;
+	trigger->touch = ProximityMine_Trigger;  // Reuse the same trigger function
+
+	trap_LinkEntity( trigger );
+
+	// set pointer to trigger so the entity can be freed when the grenade explodes
+	ent->activator = trigger;
 }
