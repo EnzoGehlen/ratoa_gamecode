@@ -1177,7 +1177,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 //unlagged - grapple
 	hook->s.otherEntityNum = self->s.number; // use to match beam in client
 	VectorCopy( start, hook->s.pos.trBase );
-	VectorScale( dir, g_swingGrapple.integer ? 4000 : 1600, hook->s.pos.trDelta );
+    VectorScale( dir, g_swingGrapple.integer ? 4000 : g_grappleSpeed.integer, hook->s.pos.trDelta );
 	SnapVector( hook->s.pos.trDelta );			// save net bandwidth
 	VectorCopy (start, hook->r.currentOrigin);
 

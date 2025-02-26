@@ -1452,7 +1452,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// Let go of the hook if we aren't firing
-	if ( client->ps.weapon == WP_GRAPPLING_HOOK &&
+	if ( !ent->client->hookhasbeenfired && client->ps.weapon == WP_GRAPPLING_HOOK &&
 		client->hook && !( ucmd->buttons & BUTTON_ATTACK ) ) {
 		Weapon_HookFree(client->hook);
 	}
@@ -1518,6 +1518,8 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.debugLevel = g_debugMove.integer;
 	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0;
 
+    pm.pmove_grapplePullSpeed = g_grapplePullSpeed.integer;
+
 	if (client && client->pers.disoriented) {
 		pm.cmd.forwardmove = -pm.cmd.forwardmove;
 		pm.cmd.rightmove = -pm.cmd.rightmove;
@@ -1573,8 +1575,35 @@ void ClientThink_real( gentity_t *ent ) {
 	//		ent->r.maxs[2]);
 	SendPendingPredictableEvents( &ent->client->ps );
 
-	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
-		client->fireHeld = qfalse;		// for grapple
+if (!g_offhandGrapple.integer) {
+		if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
+			client->fireHeld = qfalse;		// for grapple
+		}
+		// release the offhand grappling hook if someone is still using it, otherwise the player will be stuck
+		if(ent->client->hookhasbeenfired){
+			ent->client->fireHeld = qfalse;
+			ent->client->hookhasbeenfired = qfalse;
+			if(client->hook){
+				Weapon_HookFree(client->hook);
+			}
+		}
+	} else if (client->ps.stats[STAT_WEAPONS] & ( 1 << WP_GRAPPLING_HOOK )) {
+		if ( (pm.cmd.buttons & BUTTON_HOOK) && !ent->client->hookhasbeenfired && !ent->client->fireHeld && ent->client->ps.pm_type != PM_DEAD ) {
+			if(client->hook){
+				Weapon_HookFree(client->hook);	// in case the player is already hooked with a regular grapple
+			}
+			ent->client->hookhasbeenfired = qtrue;
+			Weapon_GrapplingHook_Fire( ent );
+		} else if ( !(pm.cmd.buttons & BUTTON_HOOK) && ent->client->hookhasbeenfired && ent->client->fireHeld && ent->client->ps.pm_type != PM_DEAD ) {
+			ent->client->fireHeld = qfalse;
+			ent->client->hookhasbeenfired = qfalse;
+			// Weapon_HookFree is invoked from here to allow the player to fire after switching weapons while being continuously hooked using a regular grappling hook
+			if(client->hook){
+				Weapon_HookFree(client->hook);
+			}       
+		} else if ( (!ent->client->hookhasbeenfired) && !( ent->client->ps.eFlags & EF_FIRING ) ) {
+			client->fireHeld = qfalse;		// in case the player also has a regular grappling hook available and still uses it
+		}		// for grapple
 	}
 
 	// use the snapped origin for linking so it matches client predicted versions

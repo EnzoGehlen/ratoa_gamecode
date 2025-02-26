@@ -188,6 +188,10 @@ vmCvar_t        g_elimination_lockspectator;
 vmCvar_t	g_swingGrapple;
 vmCvar_t	g_grapple;
 
+vmCvar_t	g_offhandGrapple;
+vmCvar_t	g_grappleSpeed;
+vmCvar_t	g_grapplePullSpeed;
+
 vmCvar_t	g_rockets;
 
 //dmn_clowns suggestions (with my idea of implementing):
@@ -816,6 +820,10 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_swingGrapple, "g_swingGrapple", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_grapple, "g_grapple", "0", CVAR_ARCHIVE, 0, qtrue },
+
+    { &g_offhandGrapple, "g_offhandGrapple", "0", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_grappleSpeed, "g_grappleSpeed", "800", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_grapplePullSpeed, "g_grapplePullSpeed", "800", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
 
 	//nexuiz style rocket arena
 	{ &g_rockets, "g_rockets", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
@@ -1727,6 +1735,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_SLIDEMODE;
 	}
 
+    if (g_offhandGrapple.integer == 1) {
+		rflags |= RAT_OFFHANDGRAPPLE;
+	}
+
 	if (g_tauntForceOn.integer) {
 		rflags |= RAT_FORCETAUNTS;
 	}
@@ -1835,6 +1847,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_freeze
 						|| cv->vmCvar == &g_crouchSlide
 						|| cv->vmCvar == &g_slideMode
+                        || cv->vmCvar == &g_offhandGrapple
 						|| cv->vmCvar == &g_tauntForceOn
 						) {
 					updateRatFlags = qtrue;

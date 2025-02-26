@@ -666,6 +666,13 @@ void CG_PingLocationWarnUp_f( void ) {
 	trap_SendConsoleCommand("-button13\n");
 }
 
+void CG_GrappleDown_f( void ) { 
+	trap_SendConsoleCommand("+button14\n");
+}
+void CG_GrappleUp_f( void ) { 
+	trap_SendConsoleCommand("-button14\n");
+}
+
 /*
  * Sends a client command to the server
  * This is used by the UI since it doesn't have the necessary interface to send
@@ -762,6 +769,8 @@ static consoleCommand_t	commands[] = {
 	{ "cgconfig", CG_CGConfig_f },
 	{ "mv", CG_Mapvote_f },
 	{ "taunt", CG_Taunt_f },
+    { "+grapple", CG_GrappleDown_f },
+	{ "-grapple", CG_GrappleUp_f },
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },

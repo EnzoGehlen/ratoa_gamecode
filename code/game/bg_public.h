@@ -263,6 +263,8 @@ typedef struct {
 	// these will be different functions during game and cgame
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+
+    int pmove_grapplePullSpeed;
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
@@ -926,6 +928,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define RAT_CROUCHSLIDE		(1 << 26)
 #define RAT_SLIDEMODE		(1 << 27)
 #define RAT_FORCETAUNTS		(1 << 28)
+#define RAT_OFFHANDGRAPPLE (1 << 29)
 
 #define MAX_RAT_SAY_TEXT 256
 
