@@ -846,10 +846,10 @@ void Weapon_LightningFire( gentity_t *ent ) {
 	vec3_t		end;
 	vec3_t impactpoint, bouncedir;
 	gentity_t	*traceEnt, *tent;
-	int			i, passent;
+	int			damage, i, passent;
 
 	// Set damage to 0 but keep knockback by passing damage value only to knockback
-	int knockback = g_lgDamage.integer * s_quadFactor;
+	damage = g_lgDamage.integer * s_quadFactor;
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
@@ -907,7 +907,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 				}
 				// Pass 0 as damage but keep knockback value
 				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-					0, knockback, MOD_LIGHTNING);
+					damage, 0, MOD_LIGHTNING);
 			}
 		}
 		break;

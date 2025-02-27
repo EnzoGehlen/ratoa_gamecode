@@ -1006,7 +1006,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "grenade";
-	bolt->nextthink = level.time + 25000;
+	bolt->nextthink = level.time + 250000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -1029,7 +1029,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->parent = self;
 	bolt->damage = 100;
 	bolt->splashDamage = 100;
-	bolt->splashRadius = 500;  // Using smaller radius than default for proximity detection
+	bolt->splashRadius = 700;  // Using smaller radius than default for proximity detection
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
 	bolt->clipmask = MASK_SHOT;
@@ -1065,7 +1065,7 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "bfg";
-	bolt->nextthink = level.time + 10000;
+	bolt->nextthink = level.time + 100000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -1076,9 +1076,9 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 100;
-	bolt->splashRadius = 120;
+	bolt->damage = 1000000;
+	bolt->splashDamage = 10000;
+	bolt->splashRadius = 12000;
 	bolt->methodOfDeath = MOD_BFG;
 	bolt->splashMethodOfDeath = MOD_BFG_SPLASH;
 	bolt->clipmask = MASK_SHOT;
@@ -1316,7 +1316,7 @@ static void Grenade_ProximityActivate( gentity_t *ent ) {
 
 	// Still keep the regular explode timer as backup
 	ent->think = G_ExplodeMissile;
-	ent->nextthink = level.time + 20000;  // 2 seconds after landing
+	ent->nextthink = level.time + 200000;  // 2 seconds after landing
 
 	// Create ticking sound to warn players
 	ent->s.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav" );
@@ -1327,7 +1327,7 @@ static void Grenade_ProximityActivate( gentity_t *ent ) {
 	trigger->classname = "grenade_trigger";
 
 	// Use slightly smaller radius than prox mines
-	r = 150;
+	r = 500;
 	VectorSet( trigger->r.mins, -r, -r, -r );
 	VectorSet( trigger->r.maxs, r, r, r );
 

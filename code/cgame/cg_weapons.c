@@ -1522,9 +1522,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_BFG:
 		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/bfg/bfg_hum.wav", qfalse );
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.7f, 1 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/bfg/bfg_fire.wav", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/fiau.ogg", qfalse );
 		cgs.media.bfgExplosionShader = trap_R_RegisterShader( "bfgExplosion" );
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/weaphits/bfg.md3" );
+		weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
 		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
 		break;
 
@@ -4511,7 +4511,8 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 		shader = cgs.media.bfgExplosionShader;
 		sfx = cgs.media.sfx_rockexp;
 		mark = cgs.media.burnMarkShader;
-		radius = 32;
+		radius = 160;  // Changed from 32 to 160 (5x larger)
+		light = 300;   // You might want to increase this too
 		isSprite = qtrue;
 		break;
 	case WP_SHOTGUN:
@@ -4640,6 +4641,15 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 		}
 		le->light = light;
 		VectorCopy( lightColor, le->lightColor );
+		
+		// Add this condition to scale up the BFG explosion
+		if ( weapon == WP_BFG ) {
+			VectorScale( le->refEntity.axis[0], 5.0f, le->refEntity.axis[0] );
+			VectorScale( le->refEntity.axis[1], 5.0f, le->refEntity.axis[1] );
+			VectorScale( le->refEntity.axis[2], 5.0f, le->refEntity.axis[2] );
+			le->refEntity.nonNormalizedAxes = qtrue;
+		}
+		
 		if ( weapon == WP_RAILGUN ) {
 			// colorize with client color
 			VectorCopy( cgs.clientinfo[clientNum].color1, le->color );
