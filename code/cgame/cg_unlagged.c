@@ -758,6 +758,11 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				VectorScale(forward, BFG_VELOCITY, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_LINEAR;
+				// Scale up the BFG projectile model
+				VectorScale(bolt->axis[0], 30.0f, bolt->axis[0]);
+				VectorScale(bolt->axis[1], 30.0f, bolt->axis[1]);
+				VectorScale(bolt->axis[2], 30.0f, bolt->axis[2]);
+				bolt->nonNormalizedAxes = qtrue;
 				break;
 			case WP_PROX_LAUNCHER:
 				forward[2] += 0.2f;
@@ -833,6 +838,14 @@ void CG_FinishPredictMissileModel( entityState_t *ent, predictedMissile_t *pm ) 
 	bolt->rotation = 0;
 	bolt->hModel = cg_weapons[ent->weapon].missileModel;
 	bolt->renderfx = cg_weapons[ent->weapon].missileRenderfx | RF_NOSHADOW;
+
+	// Scale up the BFG projectile model if it's a BFG
+	if (ent->weapon == WP_BFG) {
+		VectorScale(bolt->axis[0], 30.0f, bolt->axis[0]);
+		VectorScale(bolt->axis[1], 30.0f, bolt->axis[1]);
+		VectorScale(bolt->axis[2], 30.0f, bolt->axis[2]);
+		bolt->nonNormalizedAxes = qtrue;
+	}
 }
 
 void CG_PredictNailgunMissile( entityState_t *ent, vec3_t muzzlePoint, vec3_t forward, vec3_t right, vec3_t up ) {

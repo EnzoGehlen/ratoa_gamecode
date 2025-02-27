@@ -945,7 +945,7 @@ typedef enum {
 
 // projectile speeds (needed client-side for prediction)
 #define PLASMA_VELOCITY 2000
-#define BFG_VELOCITY 200
+#define BFG_VELOCITY 400
 #define GRENADE_VELOCITY 700
 #define PROXMINE_VELOCITY 700
 

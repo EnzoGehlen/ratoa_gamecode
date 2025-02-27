@@ -684,6 +684,14 @@ static void CG_Missile( centity_t *cent ) {
 		}
 	}
 
+	// Scale up the BFG projectile model
+	if ( cent->currentState.weapon == WP_BFG ) {
+		VectorScale(ent.axis[0], 30.0f, ent.axis[0]);
+		VectorScale(ent.axis[1], 30.0f, ent.axis[1]);
+		VectorScale(ent.axis[2], 30.0f, ent.axis[2]);
+		ent.nonNormalizedAxes = qtrue;
+	}
+
 	// add to refresh list, possibly with quad glow
 	CG_AddRefEntityWithPowerups( &ent, s1, TEAM_FREE, qtrue, NULL, 0, qfalse );
 }

@@ -1524,7 +1524,11 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.7f, 1 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/fiau.ogg", qfalse );
 		cgs.media.bfgExplosionShader = trap_R_RegisterShader( "bfgExplosion" );
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
+		if (cg_rocketStyle.integer > 0 && cg_rocketStyle.integer < 5) {
+			weaponInfo->missileModel = trap_R_RegisterModel( va("models/ammo/rocket/rocket%i/rocket.md3", cg_rocketStyle.integer) );
+		} else {
+			weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
+		}
 		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/siren.wav", qfalse );
 		break;
 

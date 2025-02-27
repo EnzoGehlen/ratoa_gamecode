@@ -2084,7 +2084,7 @@ static void PM_Weapon( void ) {
 		}
 		break;
 	case WP_BFG:
-		addTime = 200;
+		addTime = 2000;
 		break;
 	case WP_GRAPPLING_HOOK:
 		addTime = 50;

@@ -335,6 +335,9 @@ BFG
 void BFG_Fire ( gentity_t *ent ) {
 	gentity_t	*m;
 
+	// Apply 50 self damage when firing the BFG
+	G_Damage(ent, ent, ent, NULL, NULL, 150, DAMAGE_NO_KNOCKBACK, MOD_BFG);
+	
 	m = fire_bfg (ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
