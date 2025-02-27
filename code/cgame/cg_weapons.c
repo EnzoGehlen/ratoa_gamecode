@@ -1407,7 +1407,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->missileDlightColor, 1, 0.75f, 0 );
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
 
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/fiau.ogg", qfalse );
 		switch (cg_ratRocketExplosion.integer) {
 			case 2:
 				// less fiery version
