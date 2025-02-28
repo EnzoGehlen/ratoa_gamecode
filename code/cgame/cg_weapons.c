@@ -1407,7 +1407,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->missileDlightColor, 1, 0.75f, 0 );
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
 
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/fiau.ogg", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/fiau.ogg", qfalse );
+		weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/rocket/fiau2.ogg", qfalse );
+
 		switch (cg_ratRocketExplosion.integer) {
 			case 2:
 				// less fiery version
@@ -1522,7 +1524,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_BFG:
 		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/danger.wav", qfalse );
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.7f, 1 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/fiau.ogg", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/fiau.ogg", qfalse );
 		cgs.media.bfgExplosionShader = trap_R_RegisterShader( "bfgExplosion" );
 		if (cg_rocketStyle.integer > 0 && cg_rocketStyle.integer < 5) {
 			weaponInfo->missileModel = trap_R_RegisterModel( va("models/ammo/rocket/rocket%i/rocket.md3", cg_rocketStyle.integer) );
