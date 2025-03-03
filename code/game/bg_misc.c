@@ -2043,6 +2043,7 @@ const char *BG_EAwardToString(extAward_t award) {
 	case EAWARD_REVENGE: return "revenge";
 	case EAWARD_BERSERKER: return "berserker";
 	case EAWARD_VAPORIZED: return "vaporized";
+	case EAWARD_LASIER: return "lasier";
 	case EAWARD_TWITCHRAIL: return "twitchrail";
 	case EAWARD_RAT: return "rat";
 	case EAWARD_THAWBUDDY: return "thawbuddy";

@@ -165,6 +165,7 @@ void G_JSONExportPlayer(fileHandle_t f, gclient_t *cl) {
 	G_JSONExportAward(f, BG_EAwardToString(EAWARD_REVENGE), cl->pers.awardCounts[EAWARD_REVENGE], &comma);
 	G_JSONExportAward(f, BG_EAwardToString(EAWARD_BERSERKER), cl->pers.awardCounts[EAWARD_BERSERKER], &comma);
 	G_JSONExportAward(f, BG_EAwardToString(EAWARD_VAPORIZED), cl->pers.awardCounts[EAWARD_VAPORIZED], &comma);
+	G_JSONExportAward(f, BG_EAwardToString(EAWARD_LASIER), cl->pers.awardCounts[EAWARD_LASIER], &comma);
 	G_JSONExportAward(f, BG_EAwardToString(EAWARD_TWITCHRAIL), cl->pers.awardCounts[EAWARD_TWITCHRAIL], &comma);
 	G_JSONExportAward(f, BG_EAwardToString(EAWARD_RAT), cl->pers.awardCounts[EAWARD_RAT], &comma);
 	G_JSONExportAward(f, BG_EAwardToString(EAWARD_THAWBUDDY), cl->pers.awardCounts[EAWARD_THAWBUDDY], &comma);

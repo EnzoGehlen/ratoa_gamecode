@@ -389,6 +389,7 @@ static void CG_RatDrawClientMedals(int y, score_t *score, float *color, float fa
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_ROCKETRAIL], cgs.media.eaward_medals[EAWARD_ROCKETRAIL]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_LGRAIL], cgs.media.eaward_medals[EAWARD_LGRAIL]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_VAPORIZED], cgs.media.eaward_medals[EAWARD_VAPORIZED]);
+	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_LASIER], cgs.media.eaward_medals[EAWARD_LASIER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_REVENGE], cgs.media.eaward_medals[EAWARD_REVENGE]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_BERSERKER], cgs.media.eaward_medals[EAWARD_BERSERKER]);
 	x = CG_RatDrawClientAward(y, x, score->eaward_counts[EAWARD_TWITCHRAIL], cgs.media.eaward_medals[EAWARD_TWITCHRAIL]);

@@ -783,6 +783,16 @@ void G_CheckAmbushAward(gentity_t *victim, gentity_t *inflictor, gentity_t *atta
 	}
 }
 
+void G_CheckLasierAward(gentity_t *attacker, gentity_t *victim, int meansOfDeath) {
+	if (!attacker || !attacker->client || attacker == victim || OnSameTeam(attacker, victim)) {
+		return;
+	}
+
+	if (meansOfDeath == MOD_LIGHTNING) {
+		G_AwardEAward(attacker, EAWARD_LASIER);
+	}
+}
+
 void G_CheckVaporizedAward(gentity_t *attacker, gentity_t *victim) {
 	gclient_t *client = attacker->client;
 	int i = client->damage_history_head % DAMAGE_HISTORY;
@@ -985,6 +995,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		} else {
 			self->client->pers.deaths += 1;
 		}
+	}
+
+	if (meansOfDeath == MOD_LIGHTNING) {
+		G_CheckLasierAward(attacker, self, meansOfDeath);
 	}
 
 	// needs to be checked before we untimeshift the victim

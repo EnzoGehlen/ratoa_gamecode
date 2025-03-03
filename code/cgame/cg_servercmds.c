@@ -402,6 +402,7 @@ static void CG_ParseRatScores4( void ) {
 		cg.scores_buf[i].eaward_counts[EAWARD_TWITCHRAIL]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 12));
 		cg.scores_buf[i].eaward_counts[EAWARD_RAT]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 13));
 		cg.scores_buf[i].eaward_counts[EAWARD_THAWBUDDY]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 14));
+		cg.scores_buf[i].eaward_counts[EAWARD_LASIER]= atoi(CG_Argv(i * NUM_RAT4_DATA + FIRST_RAT4_DATA + 15));
 	}
 
 	CG_CheckScoreUpdate();

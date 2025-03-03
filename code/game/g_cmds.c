@@ -340,6 +340,7 @@ void Ratscores4Message( gentity_t *ent ) {
 				cl->pers.awardCounts[EAWARD_REVENGE],
 				cl->pers.awardCounts[EAWARD_BERSERKER],
 				cl->pers.awardCounts[EAWARD_VAPORIZED],
+				cl->pers.awardCounts[EAWARD_LASIER],
 				cl->pers.awardCounts[EAWARD_TWITCHRAIL],
 				cl->pers.awardCounts[EAWARD_RAT],
 				cl->pers.awardCounts[EAWARD_THAWBUDDY]
