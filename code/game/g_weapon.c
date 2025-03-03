@@ -665,6 +665,7 @@ void weapon_railgun_fire (gentity_t *ent) {
 	int			unlinked;
 	int			passent;
 	gentity_t	*unlinkedEntities[MAX_RAIL_HITS];
+	qboolean	playerKilled = qfalse;  // Track if a player was killed
 
 	//damage = 80 * s_quadFactor;
 	damage = g_railgunDamage.integer * s_quadFactor;
@@ -715,6 +716,10 @@ void weapon_railgun_fire (gentity_t *ent) {
 			else {
 				if( LogAccuracyHit( traceEnt, ent ) ) {
 					hits++;
+				}
+				// Check if this damage will kill the player
+				if (traceEnt->client && traceEnt->health > 0 && traceEnt->health <= damage) {
+					playerKilled = qtrue;
 				}
 				G_Damage (traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_RAILGUN);
 			}
@@ -787,6 +792,10 @@ void weapon_railgun_fire (gentity_t *ent) {
                 ent->client->accuracy[WP_RAILGUN][1]++;
 	}
 
+	// Reset cooldown if a player was killed and g_railgunResetOnKill is enabled
+	if (g_railgunResetOnKill.integer && playerKilled) {
+		ent->client->ps.weaponTime = 100;
+	}
 }
 
 
@@ -1497,15 +1506,6 @@ qboolean G_IsVisible (gentity_t *targ, vec3_t origin) {
 	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
 	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
 		return qtrue;
-
-	VectorCopy (midpoint, dest);
-	dest[0] -= xd;
-	dest[1] -= yd;
-	dest[2] -= zd;
-	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
-	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
-		return qtrue;
-
 
 	return qfalse;
 }

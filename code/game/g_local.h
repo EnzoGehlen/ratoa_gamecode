@@ -2147,3 +2147,7 @@ void G_WriteStatsJSON(const char *exitreason, int game_id);
 
 #include "g_killspree.h"
 #include "g_admin.h"
+
+extern vmCvar_t        g_railgunDamage;
+extern vmCvar_t        g_railgunResetOnKill;
+extern vmCvar_t        g_lgDamage;

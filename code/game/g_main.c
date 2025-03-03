@@ -371,6 +371,7 @@ vmCvar_t        g_tauntAfterDeathTime;
 vmCvar_t        g_mgDamage;
 vmCvar_t        g_mgTeamDamage;
 vmCvar_t        g_railgunDamage;
+vmCvar_t        g_railgunResetOnKill;
 vmCvar_t        g_lgDamage;
 vmCvar_t        g_gauntDamage;
 
@@ -738,6 +739,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_mgDamage,			"g_mgDamage", "6", 0, 0, qtrue },
 	{ &g_mgTeamDamage,		"g_mgTeamDamage", "6", 0, 0, qtrue },
 	{ &g_railgunDamage,		"g_railgunDamage", "80", 0, 0, qtrue },
+	{ &g_railgunResetOnKill,	"g_railgunResetOnKill", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_lgDamage, 			"g_lgDamage", "7", 0, 0, qtrue },
 	{ &g_gauntDamage,		"g_gauntDamage", "50", 0, 0, qtrue },
 
@@ -3086,7 +3088,7 @@ static void SendDuelStatsMessages( void ) {
 CalculateRanks
 
 Recalculates the score ranks of all players
-This will be called on every client connect, begin, disconnect, death,
+This will be called on every client connect, begin, disconnect,
 and team change.
 ============
 */
