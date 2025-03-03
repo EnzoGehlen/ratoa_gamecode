@@ -2047,6 +2047,7 @@ const char *BG_EAwardToString(extAward_t award) {
 	case EAWARD_TWITCHRAIL: return "twitchrail";
 	case EAWARD_RAT: return "rat";
 	case EAWARD_THAWBUDDY: return "thawbuddy";
+	case EAWARD_SPIDERMAN: return "spiderman";
 	// shutup gcc:
 	case EAWARD_NUM_AWARDS:
 		break;

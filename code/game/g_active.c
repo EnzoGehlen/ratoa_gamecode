@@ -1457,6 +1457,31 @@ void ClientThink_real( gentity_t *ent ) {
 		Weapon_HookFree(client->hook);
 	}
 
+	// Check for grappling hook award (staying airborne using hook for 5 seconds)
+	if (client->ps.groundEntityNum != ENTITYNUM_NONE) {
+		// Player is on the ground, reset airborne timer
+		client->hookStartTime = 0;
+	} else if (client->ps.pm_flags & PMF_GRAPPLE_PULL) {
+		// Player is airborne and using the hook
+		if (client->hookStartTime == 0) {
+			// Start tracking time when player begins using hook while airborne
+			client->hookStartTime = level.time;
+		} else {
+			// Determine required time based on whether player already has the award
+			int requiredTime = 5000; // 5 seconds for first award
+			if (client->pers.awardCounts[EAWARD_SPIDERMAN] > 0) {
+				requiredTime = 10000 * (client->pers.awardCounts[EAWARD_SPIDERMAN] + 1); // 10 seconds for subsequent awards
+			}
+			
+			if (level.time - client->hookStartTime >= requiredTime) {
+				// Award after required time of staying airborne with hook
+				G_AwardEAward(ent, EAWARD_SPIDERMAN);
+				// Reset timer completely after awarding
+				client->hookStartTime = 0;
+			}
+		}
+	}
+
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
 

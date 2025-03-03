@@ -2280,6 +2280,7 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_REVENGE] = trap_S_RegisterSound( va("sound/%sratmod/medals/revenge.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_VAPORIZED] = trap_S_RegisterSound( va("sound/%sratmod/medals/vaporized.%s", announcer, format), qtrue);
 		cgs.media.eaward_sounds[EAWARD_LASIER] = trap_S_RegisterSound( va("sound/%sratmod/medals/lasier.%s", announcer, format), qtrue);
+		cgs.media.eaward_sounds[EAWARD_SPIDERMAN] = trap_S_RegisterSound( va("sound/%sratmod/medals/spiderman.%s", announcer, format), qtrue);
 	} else {
 		cgs.media.eaward_sounds[EAWARD_TELEFRAG] = cgs.media.humiliationSound;
 		cgs.media.eaward_sounds[EAWARD_TELEMISSILE_FRAG] = cgs.media.perfectSound;
@@ -2311,6 +2312,7 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.eaward_sounds[EAWARD_REVENGE] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_VAPORIZED] = cgs.media.perfectSound;
 		cgs.media.eaward_sounds[EAWARD_LASIER] = cgs.media.perfectSound;
+		cgs.media.eaward_sounds[EAWARD_SPIDERMAN] = cgs.media.perfectSound;
 	}
 	cgs.media.eaward_sounds[EAWARD_THAWBUDDY] = cgs.media.assistSound;
 
@@ -2828,6 +2830,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.eaward_medals[EAWARD_BERSERKER] = trap_R_RegisterShaderNoMip( "medal_berserker" );
 	cgs.media.eaward_medals[EAWARD_VAPORIZED] = trap_R_RegisterShaderNoMip( "medal_vaporized" );
 	cgs.media.eaward_medals[EAWARD_LASIER] = trap_R_RegisterShaderNoMip( "medal_lasier" );
+	cgs.media.eaward_medals[EAWARD_SPIDERMAN] = trap_R_RegisterShaderNoMip( "medal_spiderman" );
 	cgs.media.eaward_medals[EAWARD_THAWBUDDY] = trap_R_RegisterShaderNoMip( "medal_thawbuddy" );
 
 	switch (cg_ratStatusbar.integer) {

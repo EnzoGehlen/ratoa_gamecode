@@ -625,6 +625,7 @@ struct gclient_s {
 
 	qboolean	fireHeld;			// used for hook
 	gentity_t	*hook;				// grapple hook if out
+	int		hookStartTime;			// time when player started hanging with hook
 
     qboolean	hookhasbeenfired;		// for the offhand grapple
 
