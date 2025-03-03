@@ -3559,7 +3559,7 @@ else
         if (g_elimination_grapple.integer) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
 	}
-	if (g_elimination_nail.integer > 0 && ElimRoundWeaponAllowed(WP_NAILGUN)) {
+	if (g_elimination_nail.integer > 0 ) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
 		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
 	}

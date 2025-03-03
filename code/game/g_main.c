@@ -796,16 +796,16 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_elimination_spawnitems, "elimination_spawnitems", "0", CVAR_LATCH | CVAR_NORESTART, 0, qfalse },
 	{ &g_elimination_roundweapons, "elimination_roundweapons", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 
-	{ &g_elimination_machinegun, "elimination_machinegun", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
+	{ &g_elimination_machinegun, "elimination_machinegun", "1000", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_shotgun, "elimination_shotgun", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_grenade, "elimination_grenade", "100", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
-	{ &g_elimination_rocket, "elimination_rocket", "50", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
-	{ &g_elimination_railgun, "elimination_railgun", "20", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
+	{ &g_elimination_rocket, "elimination_rocket", "100", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
+	{ &g_elimination_railgun, "elimination_railgun", "50", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_lightning, "elimination_lightning", "300", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
-	{ &g_elimination_plasmagun, "elimination_plasmagun", "200", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
-	{ &g_elimination_chain, "elimination_chain", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
+	{ &g_elimination_plasmagun, "elimination_plasmagun", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
+	{ &g_elimination_chain, "elimination_chain", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_mine, "elimination_mine", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
-	{ &g_elimination_nail, "elimination_nail", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
+	{ &g_elimination_nail, "elimination_nail", "500", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 
 	{ &g_elimination_ctf_oneway, "elimination_ctf_oneway", "0", CVAR_ARCHIVE| CVAR_NORESTART, 0, qtrue },
 
