@@ -147,6 +147,7 @@ typedef enum {
 	GT_DOUBLE_D,			// Double Domination
 	GT_DOMINATION,			// Standard domination 12
 	GT_TREASURE_HUNTER,			
+	GT_GUNGAME,			// GunGame - weapon progression on kills
 #ifdef WITH_MULTITOURNAMENT
 	GT_MULTITOURNAMENT,
 #endif
@@ -950,8 +951,8 @@ typedef enum {
 #define GRENADE_VELOCITY 700
 #define PROXMINE_VELOCITY 700
 
-#define NUM_NAILSHOTS 15
-#define NAILGUN_SPREAD 500
+#define NUM_NAILSHOTS 45
+#define NAILGUN_SPREAD 600
 #define NAIL_BASE_VELOCITY 555
 #define NAIL_RND_VELOCITY 1800
 
@@ -1053,6 +1054,7 @@ const char *BG_EntityTypeToString(int eType);
 qboolean BG_IsTeamGametype(gametype_t gametype);
 qboolean BG_IsElimTeamGT(gametype_t gametype);
 qboolean BG_IsElimGT(gametype_t gametype);
+qboolean BG_IsGunGameGT(gametype_t gametype);
 
 const char *BG_EAwardToString(extAward_t award);
 

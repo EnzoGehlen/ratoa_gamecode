@@ -196,7 +196,7 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 }
 //unlagged - attack prediction #3
 
-#define CHAINGUN_SPREAD		600.0
+#define CHAINGUN_SPREAD		200.0
 #define MACHINEGUN_SPREAD	200
 //#define	MACHINEGUN_DAMAGE	6
 #define	MACHINEGUN_DAMAGE	(g_mgDamage.integer)

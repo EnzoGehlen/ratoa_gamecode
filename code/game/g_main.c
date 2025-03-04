@@ -182,6 +182,7 @@ vmCvar_t	g_elimination_plasmagun;
 vmCvar_t	g_elimination_chain;
 vmCvar_t	g_elimination_mine;
 vmCvar_t	g_elimination_nail;
+vmCvar_t	g_gungame;
 
 vmCvar_t        g_elimination_lockspectator;
 
@@ -542,7 +543,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_voteNames, "g_voteNames", "/map_restart/nextmap/map/g_gametype/clientkick/g_doWarmup/timelimit/fraglimit/capturelimit/shuffle/bots/botskill/votenextmap/", CVAR_ARCHIVE, 0, qfalse }, //clientkick g_doWarmup timelimit fraglimit
         { &g_voteBan, "g_voteBan", "0", CVAR_ARCHIVE, 0, qfalse },
         { &g_voteKickProtectAdmins, "g_voteKickProtectAdmins", "0", CVAR_ARCHIVE, 0, qfalse },
-        { &g_voteGametypes, "g_voteGametypes", "/0/1/3/4/5/6/7/8/9/10/11/12/", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+        { &g_voteGametypes, "g_voteGametypes", "/0/1/3/4/5/6/7/8/9/10/11/12/14/", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_voteMaxTimelimit, "g_voteMaxTimelimit", "1000", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_voteMinTimelimit, "g_voteMinTimelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_voteMaxFraglimit, "g_voteMaxFraglimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
@@ -1619,6 +1620,10 @@ qboolean G_IsElimTeamGT(void) {
 
 qboolean G_IsElimGT(void) {
 	return BG_IsElimGT(g_gametype.integer);
+}
+
+qboolean G_IsGunGameGT(void) {
+	return BG_IsGunGameGT(g_gametype.integer);
 }
 
 void G_UpdateRatFlags( void ) {
@@ -4145,7 +4150,7 @@ qboolean G_MultiTrnFinished(void) {
 	}
 	return qtrue;
 }
-#endif
+#endif // WITH_MULTITOURNAMENT
 
 
 static void TeamWins(team_t team) {
@@ -4986,6 +4991,24 @@ void CheckLMS(void) {
 			}
 		}
 
+	}
+}
+
+/*
+=============
+CheckGunGame
+=============
+*/
+
+void CheckGunGame(void) {
+	if (level.numPlayingClients < 1) {
+		return;
+	}
+
+	// Check if any player has won the GunGame round
+	if (G_GunGame_CheckWinner()) {
+		LogExit("GunGame round won.", qtrue);
+		return;
 	}
 }
 
@@ -6624,6 +6647,18 @@ void G_RunFrame( int levelTime ) {
 	// accepting commands from connected clients
 	level.frameStartTime = trap_Milliseconds();
 //unlagged - backward reconciliation #4
+
+	if ( g_gametype.integer == GT_LMS ) {
+		CheckLMS();
+	}
+
+	if ( g_gametype.integer == GT_GUNGAME ) {
+		CheckGunGame();
+	}
+
+	if ( G_IsElimGT() ) {
+		CheckElimination();
+	}
 }
 
 void G_LockTeams(void) {

@@ -51,8 +51,9 @@ static char* votemenu_Gametype_artlist[] =
 #define ID_LMS          111
 #define ID_DOUBLED      112
 #define ID_DOM          113
+#define ID_GUNGAME      114
 
-#define Gametype_MENU_VERTICAL_SPACING	19
+#define Gametype_MENU_VERTICAL_SPACING	20
 
 typedef struct
 {
@@ -74,6 +75,7 @@ typedef struct
     menutext_s      bLMS;
     menutext_s      bDOUBLED;
     menutext_s      bDOM;
+    menutext_s      bGUNGAME;
 
     //Allowed:
     qboolean        FFA;
@@ -88,6 +90,7 @@ typedef struct
     qboolean        LMS;
     qboolean        DOUBLED;
     qboolean        DOM;
+    qboolean        GUNGAME;
     int selection;
 } votemenu_t;
 
@@ -172,6 +175,11 @@ static void VoteMenu_Gametype_Event( void* ptr, int event )
                         break;
                         case ID_DOM:
                         trap_Cmd_ExecuteText( EXEC_APPEND, "callvote g_gametype 12" );
+                        UI_PopMenu();
+                        UI_PopMenu();
+                        break;
+                        case ID_GUNGAME:
+                        trap_Cmd_ExecuteText( EXEC_APPEND, "callvote g_gametype 14" );
                         UI_PopMenu();
                         UI_PopMenu();
                         break;
@@ -291,10 +299,11 @@ void UI_VoteGametypeMenuInternal( void )
     y+=Gametype_MENU_VERTICAL_SPACING;
     setGametypeMenutext(&s_votemenu_Gametype.bLMS,y,ID_LMS,s_votemenu_Gametype.LMS,"Last man standing");
     y+=Gametype_MENU_VERTICAL_SPACING;
+    setGametypeMenutext(&s_votemenu_Gametype.bGUNGAME,y,ID_GUNGAME,s_votemenu_Gametype.GUNGAME,"Gun Game");
+    y+=Gametype_MENU_VERTICAL_SPACING;
     setGametypeMenutext(&s_votemenu_Gametype.bDOUBLED,y,ID_DOUBLED,s_votemenu_Gametype.DOUBLED,"Double Domination");
     y+=Gametype_MENU_VERTICAL_SPACING;
     setGametypeMenutext(&s_votemenu_Gametype.bDOM,y,ID_DOM,s_votemenu_Gametype.DOM,"Domination");
-
     s_votemenu_Gametype.back.generic.type	   = MTYPE_BITMAP;
     s_votemenu_Gametype.back.generic.name     = VOTEMENU_BACK0;
     s_votemenu_Gametype.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -343,6 +352,7 @@ void UI_VoteGametypeMenu( void ) {
             s_votemenu_Gametype.LMS = qtrue;
             s_votemenu_Gametype.DOUBLED = qtrue;
             s_votemenu_Gametype.DOM = qtrue;
+            s_votemenu_Gametype.GUNGAME = qtrue;
         } else {
             s_votemenu_Gametype.FFA = (qboolean)Q_stristr(gametypeinfo,"/0/");
             s_votemenu_Gametype.Tourney = (qboolean)Q_stristr(gametypeinfo,"/1/");
@@ -356,6 +366,7 @@ void UI_VoteGametypeMenu( void ) {
             s_votemenu_Gametype.LMS = (qboolean)Q_stristr(gametypeinfo,"/10/");
             s_votemenu_Gametype.DOUBLED = (qboolean)Q_stristr(gametypeinfo,"/11/");
             s_votemenu_Gametype.DOM = (qboolean)Q_stristr(gametypeinfo,"/12/");
+            s_votemenu_Gametype.GUNGAME = (qboolean)Q_stristr(gametypeinfo,"/14/");
         }
 
         UI_VoteGametypeMenuInternal();
@@ -373,8 +384,8 @@ void UI_VoteGametypeMenu( void ) {
         Menu_AddItem( &s_votemenu_Gametype.menu, (void*) &s_votemenu_Gametype.bElimination );
         Menu_AddItem( &s_votemenu_Gametype.menu, (void*) &s_votemenu_Gametype.bCTFe );
         Menu_AddItem( &s_votemenu_Gametype.menu, (void*) &s_votemenu_Gametype.bLMS );
+        Menu_AddItem( &s_votemenu_Gametype.menu, (void*) &s_votemenu_Gametype.bGUNGAME );
         Menu_AddItem( &s_votemenu_Gametype.menu, (void*) &s_votemenu_Gametype.bDOUBLED );
         Menu_AddItem( &s_votemenu_Gametype.menu, (void*) &s_votemenu_Gametype.bDOM );
-
 	UI_PushMenu( &s_votemenu_Gametype.menu );
 }

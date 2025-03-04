@@ -2003,6 +2003,7 @@ qboolean BG_IsTeamGametype(gametype_t gametype) {
 		&& gametype != GT_MULTITOURNAMENT
 #endif
 		&& gametype != GT_LMS
+		&& gametype != GT_GUNGAME
 		;
 }
 
@@ -2012,6 +2013,10 @@ qboolean BG_IsElimTeamGT(gametype_t gametype) {
 
 qboolean BG_IsElimGT(gametype_t gametype) {
 	return BG_IsElimTeamGT(gametype) || gametype == GT_LMS;
+}
+
+qboolean BG_IsGunGameGT(gametype_t gametype) {
+	return gametype == GT_GUNGAME;
 }
 
 const char *BG_EAwardToString(extAward_t award) {

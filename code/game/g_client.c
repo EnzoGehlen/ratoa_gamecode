@@ -3503,7 +3503,15 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 
-if(!G_IsElimGT() && !g_elimination_allgametypes.integer)
+if (G_IsGunGameGT()) {
+	// Initialize the client for GunGame
+	G_GunGame_InitClient(client);
+	
+	// Set health and armor
+	ent->health = client->ps.stats[STAT_ARMOR] = 100;
+	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
+}
+else if(!G_IsElimGT() && !g_elimination_allgametypes.integer)
 {
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
 	if ( g_gametype.integer == GT_TEAM ) {
@@ -3559,7 +3567,7 @@ else
         if (g_elimination_grapple.integer) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
 	}
-	if (g_elimination_nail.integer > 0 ) {
+	if (g_elimination_nail.integer > 0 && ElimRoundWeaponAllowed(WP_NAILGUN)) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
 		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
 	}

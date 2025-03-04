@@ -966,7 +966,9 @@ qboolean CG_DrawRatScoreboard(void) {
 		s = "Overload";
 	} else if ( cgs.gametype == GT_HARVESTER ) {
 		s = "Harvester";
-          } else if ( cgs.gametype == GT_DOMINATION ) {
+	} else if ( cgs.gametype == GT_GUNGAME ) {
+		s = "Gun Game";
+	} else if ( cgs.gametype == GT_DOMINATION ) {
 		s = "Domination";
           } else if ( cgs.gametype == GT_TREASURE_HUNTER ) {
 		s = "Treasure Hunter";

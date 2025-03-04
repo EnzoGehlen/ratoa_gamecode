@@ -493,7 +493,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			(other->client->sess.sessionTeam==TEAM_RED && (level.eliminationSides+level.roundNumber)%2 != 0 ) ))
 		return;
 
-	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS) && !g_elimination_spawnitems.integer)
+	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS || g_gametype.integer == GT_GUNGAME) && !g_elimination_spawnitems.integer)
 		return;		//nothing to pick up in elimination
 
 	if (!other->client)
@@ -829,7 +829,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 	
 	// powerups don't spawn in for a while (but not in elimination)
-	if(((!G_IsElimGT() && !g_elimination_allgametypes.integer) || g_elimination_spawnitems.integer)
+	if((((!G_IsElimGT() || !G_IsGunGameGT()) && !g_elimination_allgametypes.integer) || g_elimination_spawnitems.integer)
 			&& !g_instantgib.integer && !g_rockets.integer )
 	if ( ent->item->giType == IT_POWERUP ) {
 		float	respawn;
@@ -1077,7 +1077,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	if((item->giType == IT_TEAM && (g_instantgib.integer || g_rockets.integer) ) || (!g_instantgib.integer && !g_rockets.integer) )
 	{
 		//Don't load pickups in Elimination (or maybe... gives warnings)
-		if (!G_IsElimGT() || g_elimination_spawnitems.integer)
+		if (!G_IsElimGT() || !G_IsGunGameGT() || g_elimination_spawnitems.integer)
 			RegisterItem( item );
 		//Registrer flags anyway in CTF Elimination:
 		if (g_gametype.integer == GT_CTF_ELIMINATION && item->giType == IT_TEAM)

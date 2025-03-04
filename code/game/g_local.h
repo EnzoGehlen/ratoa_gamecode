@@ -1308,6 +1308,7 @@ void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
 //KK-OAX Made Accessible for g_admin.c
 void LogExit( const char *string, qboolean recordGame);
 void CheckTeamVote( int team );
+void CheckGunGame( void );
 void G_PingEqualizerReset(void);
 void G_LockTeams(void);
 void G_UnlockTeams(void);
@@ -1318,6 +1319,7 @@ void G_EQPingClientReset(gclient_t *client);
 qboolean G_IsTeamGametype(void);
 qboolean G_IsElimTeamGT(void);
 qboolean G_IsElimGT(void);
+qboolean G_IsGunGameGT(void);
 
 #ifdef WITH_MULTITOURNAMENT
 int G_FindFreeMultiTrnSlot(void);
@@ -2151,3 +2153,24 @@ void G_WriteStatsJSON(const char *exitreason, int game_id);
 extern vmCvar_t        g_railgunDamage;
 extern vmCvar_t        g_railgunResetOnKill;
 extern vmCvar_t        g_lgDamage;
+
+qboolean G_IsElimTeamGT(void);
+qboolean G_IsElimGT(void);
+qboolean G_IsGunGameGT(void);
+
+// GunGame functions
+int G_GunGame_GetWeaponForLevel(int level);
+void G_GunGame_InitClient(gclient_t *client);
+void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfDeath);
+qboolean G_GunGame_CheckWinner(void);
+
+#ifdef WITH_MULTITOURNAMENT
+
+extern vmCvar_t	g_elimination_nail;
+extern vmCvar_t	g_elimination_mine;
+extern vmCvar_t	g_elimination_chain;
+#endif
+
+extern vmCvar_t	g_gungame;
+
+extern vmCvar_t	g_voteEliminationRoundtime;

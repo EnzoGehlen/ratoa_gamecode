@@ -282,6 +282,9 @@ void CG_DrawInformation( void ) {
 	case GT_LMS:
 		s = "Last Man Standing";
 		break;
+	case GT_GUNGAME:
+		s = "Gun Game";
+		break;
 	case GT_DOUBLE_D:
 		s = "Double Domination";
 		break;

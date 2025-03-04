@@ -217,7 +217,7 @@ void TossClientItems( gentity_t *self ) {
 	weapon = self->s.weapon;
 
 	//Never drop in elimination or last man standing mode!
-	if( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS) && !g_elimination_spawnitems.integer)
+	if( (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS || G_IsGunGameGT()) && !g_elimination_spawnitems.integer)
 		return;
 
 	// make a special check to see if they are changing to a new
@@ -1053,6 +1053,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	} else {
 		killer = ENTITYNUM_WORLD;
 		killerName = "<world>";
+	}
+
+		// Handle GunGame weapon progression
+	if (G_IsGunGameGT() && attacker && attacker->client && attacker != self) {
+		G_GunGame_PlayerKilled(attacker, self, meansOfDeath);
 	}
 
 	if ( killer < 0 || killer >= MAX_CLIENTS ) {

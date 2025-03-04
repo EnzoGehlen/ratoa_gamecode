@@ -348,8 +348,9 @@ static void CG_TouchItem( centity_t *cent ) {
 	//For instantgib
 	//qboolean	canBePicked;
 
-	//if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_LMS)
-	//	return; //No weapon pickup in elimination
+	if(BG_IsGunGameGT(cgs.gametype)){
+		return; //No weapon pickup in Gungame
+	}
 	
 	// items can only be picked up during the round
 	if (BG_IsElimGT(cgs.gametype) && cgs.roundStartTime > cg.time && cg.warmup == 0) {
