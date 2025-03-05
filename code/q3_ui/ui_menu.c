@@ -238,15 +238,15 @@ static void Main_MenuDraw( void ) {
 	}
 
 		UI_DrawProportionalString( 320, 372, "", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 386, "RatArena(c) 2017-2023 Ratmod Team", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 400, "based on OpenArena(c) 2005-2012 OpenArena Team", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 414, "Ratmod/OpenArena comes with ABSOLUTELY NO WARRANTY; this is free software", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 428, "and you are welcome to redistribute it under certain conditions;", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 444, "read COPYING for details.", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 386, "CatArena(c) 2025-2025 By EnzoGehlen", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 400, "based on ioq3(c), Ratmod 2005-2012 and OpenArena", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 414, "Catmod/ioq3 comes with ABSOLUTELY NO WARRANTY; this is what it is.", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 428, "and now you lost the game =) ", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 444, "The picture above is my cat, Gus Fring. (love u, Gus).", UI_CENTER|UI_SMALLFONT, color );
                 
                 //Draw version.
 		color[0] = 0;
-                UI_DrawString( 320, 480-14, RATMOD_VERSION, UI_CENTER|UI_SMALLFONT, color );
+                UI_DrawString( 320, 480-14, "v6.6.6", UI_CENTER|UI_SMALLFONT, color );
                 if((int)trap_Cvar_VariableValue("protocol")!=71)
                     UI_DrawString( 0, 480-14, va("^7Protocol: %i",(int)trap_Cvar_VariableValue("protocol")), UI_SMALLFONT, color);
 }
