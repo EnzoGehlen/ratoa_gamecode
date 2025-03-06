@@ -1056,7 +1056,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 		// Handle GunGame weapon progression
-	if (G_IsGunGameGT() && attacker && attacker->client && attacker != self) {
+	if (G_IsGunGameGT() && attacker && attacker->client) {
 		G_GunGame_PlayerKilled(attacker, self, meansOfDeath);
 	}
 

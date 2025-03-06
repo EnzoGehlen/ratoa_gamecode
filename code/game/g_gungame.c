@@ -25,12 +25,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Weapon progression order from best to worst
 static const int g_gunGameWeaponOrder[] = {
     WP_LIGHTNING,
+    WP_LIGHTNING,
+    WP_RAILGUN,
     WP_RAILGUN,
     WP_ROCKET_LAUNCHER,
+    WP_ROCKET_LAUNCHER,
+    WP_PLASMAGUN,
     WP_PLASMAGUN,
     WP_NAILGUN,
+    WP_NAILGUN,
+    WP_CHAINGUN,
     WP_CHAINGUN,
     WP_MACHINEGUN,
+    WP_MACHINEGUN,
+    WP_SHOTGUN,
     WP_SHOTGUN,
     WP_GAUNTLET
 };
@@ -53,7 +61,7 @@ int G_GunGame_GetWeaponForLevel(int level) {
 void G_GunGame_InitClient(gclient_t *client) {
     int i;
     int weapon;
-    int score = client->ps.persistant[PERS_SCORE];
+    int score = client->pers.kills;
     
     // Clear all weapons
     for (i = 0; i < WP_NUM_WEAPONS; i++) {
@@ -78,6 +86,8 @@ void G_GunGame_InitClient(gclient_t *client) {
     
     // Set the current weapon
     client->ps.weapon = weapon;
+
+    G_Printf("init_Score: %d\n", client->pers.kills);
 }
 
 // Handle a player kill in GunGame
@@ -88,6 +98,8 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
     int score;
 
     G_Printf("GunGame: Player killed\n");
+    G_Printf("kill_Score attacker: %d\n", attacker->client->ps.persistant[PERS_SCORE]);
+    G_Printf("kill_Score target: %d\n", target->client->ps.persistant[PERS_SCORE]);
     
     // if (!attacker || !attacker->client || !target || !target->client || attacker == target) {
     //     return;
@@ -96,11 +108,13 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
     // Check for win condition: player is at the last level AND kills with a gauntlet
     if (meansOfDeath == MOD_GAUNTLET && attacker->client->ps.weapon == WP_GAUNTLET) {
         // Check if player is at the last level (using score)
-        score = attacker->client->ps.persistant[PERS_SCORE];
+        score = attacker->client->pers.kills;
         if (score >= GG_NUM_WEAPONS - 2) { // Last level is GG_NUM_WEAPONS - 1, so check for one before
             // Player won the game with a gauntlet kill
+            attacker->client->ps.persistant[PERS_SCORE] = 100;
             trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " é o diabo mesmo!\n\"", 
                                         attacker->client->pers.netname));
+
             
             // End the round
             LogExit("GunGame round won.", qtrue);
@@ -109,13 +123,11 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
     }
 
     // Progress the attacker to the next weapon (which is a worse weapon)
-    score = attacker->client->ps.persistant[PERS_SCORE];
-    score++; // Increment score
+    score = attacker->client->pers.kills;
+    // score++; // Increment score
     
     G_Printf("GunGame: Player %s is at score %d\n", attacker->client->pers.netname, score);
     
-    if (score < GG_NUM_WEAPONS) {
-        // Clear all weapons
         for (i = 0; i < WP_NUM_WEAPONS; i++) {
             attacker->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
             attacker->client->ps.ammo[i] = 0;
@@ -139,46 +151,42 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
         // Set the current weapon
         attacker->client->ps.weapon = weapon;
         
-        // Update the score
-        attacker->client->ps.persistant[PERS_SCORE] = score;
-        
         // Inform the player
         trap_SendServerCommand(attacker->s.number, va("cp \"vc upou pra %s\n\"", 
                                                     BG_FindItemForWeapon(weapon)->pickup_name));
-    }
 
     // Only drop the target's score if killed by a gauntlet
     if (meansOfDeath == MOD_GAUNTLET && attacker->client->ps.weapon == WP_GAUNTLET) {
-        score = target->client->ps.persistant[PERS_SCORE];
+        score = target->client->pers.kills;
         if (score > 0) {
             score--; // Decrement score
             
-            // Clear all weapons
-            for (i = 0; i < WP_NUM_WEAPONS; i++) {
-                target->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
-                target->client->ps.ammo[i] = 0;
-            }
+            // // Clear all weapons
+            // for (i = 0; i < WP_NUM_WEAPONS; i++) {
+            //     target->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
+            //     target->client->ps.ammo[i] = 0;
+            // }
 
-            // Give the previous weapon in the progression
-            weapon = G_GunGame_GetWeaponForLevel(score);
-            target->client->ps.stats[STAT_WEAPONS] |= (1 << weapon);
+            // // Give the previous weapon in the progression
+            // weapon = G_GunGame_GetWeaponForLevel(score);
+            // target->client->ps.stats[STAT_WEAPONS] |= (1 << weapon);
             
-            // Always give the gauntlet as well
-            target->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
+            // // Always give the gauntlet as well
+            // target->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 
-            // Set ammo for the main weapon
-            if (weapon != WP_GAUNTLET) {
-                target->client->ps.ammo[weapon] = 999;
-            }
+            // // Set ammo for the main weapon
+            // if (weapon != WP_GAUNTLET) {
+            //     target->client->ps.ammo[weapon] = 999;
+            // }
             
-            // Set gauntlet ammo
-            target->client->ps.ammo[WP_GAUNTLET] = -1;
+            // // Set gauntlet ammo
+            // target->client->ps.ammo[WP_GAUNTLET] = -1;
             
-            // Set the current weapon
-            target->client->ps.weapon = weapon;
+            // // Set the current weapon
+            // target->client->ps.weapon = weapon;
             
             // Update the score
-            target->client->ps.persistant[PERS_SCORE] = score;
+            target->client->pers.kills = score;
             
             // Inform the player
             trap_SendServerCommand(target->s.number, va("cp \"vc caiu de level pra %s\n\"", 
@@ -187,32 +195,32 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
             G_Printf("GunGame: Player %s dropped to score %d\n", target->client->pers.netname, score);
         }
     } else {
-        // If not killed by gauntlet, just update the weapon without changing score
-        score = target->client->ps.persistant[PERS_SCORE];
+        // // If not killed by gauntlet, just update the weapon without changing score
+        // score = target->client->ps.persistant[PERS_SCORE];
         
-        // Clear all weapons
-        for (i = 0; i < WP_NUM_WEAPONS; i++) {
-            target->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
-            target->client->ps.ammo[i] = 0;
-        }
+        // // Clear all weapons
+        // for (i = 0; i < WP_NUM_WEAPONS; i++) {
+        //     target->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
+        //     target->client->ps.ammo[i] = 0;
+        // }
 
-        // Give the weapon for current level
-        weapon = G_GunGame_GetWeaponForLevel(score);
-        target->client->ps.stats[STAT_WEAPONS] |= (1 << weapon);
+        // // Give the weapon for current level
+        // weapon = G_GunGame_GetWeaponForLevel(score);
+        // target->client->ps.stats[STAT_WEAPONS] |= (1 << weapon);
         
-        // Always give the gauntlet as well
-        target->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
+        // // Always give the gauntlet as well
+        // target->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 
-        // Set ammo for the main weapon
-        if (weapon != WP_GAUNTLET) {
-            target->client->ps.ammo[weapon] = 999;
-        }
+        // // Set ammo for the main weapon
+        // if (weapon != WP_GAUNTLET) {
+        //     target->client->ps.ammo[weapon] = 999;
+        // }
         
-        // Set gauntlet ammo
-        target->client->ps.ammo[WP_GAUNTLET] = -1;
+        // // Set gauntlet ammo
+        // target->client->ps.ammo[WP_GAUNTLET] = -1;
         
-        // Set the current weapon
-        target->client->ps.weapon = weapon;
+        // // Set the current weapon
+        // target->client->ps.weapon = weapon;
     }
 }
     
