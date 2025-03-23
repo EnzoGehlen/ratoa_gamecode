@@ -758,11 +758,14 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 				VectorScale(forward, BFG_VELOCITY, pm->pos.trDelta);
 				SnapVector(pm->pos.trDelta);
 				pm->pos.trType = TR_LINEAR;
-				// Scale up the BFG projectile model
+				// Scale up the BFG projectile model to make it more intimidating
 				VectorScale(bolt->axis[0], 30.0f, bolt->axis[0]);
 				VectorScale(bolt->axis[1], 30.0f, bolt->axis[1]);
 				VectorScale(bolt->axis[2], 30.0f, bolt->axis[2]);
 				bolt->nonNormalizedAxes = qtrue;
+				
+				// Add a kamikaze-like trail effect
+				bolt->customShader = cgs.media.kamikazeEffectModel; 
 				break;
 			case WP_PROX_LAUNCHER:
 				forward[2] += 0.2f;

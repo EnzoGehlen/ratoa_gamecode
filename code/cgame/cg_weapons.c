@@ -4513,12 +4513,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 		radius = 16;
 		break;
 	case WP_BFG:
-		mod = cgs.media.dishFlashModel;
+		mod = cgs.media.kamikazeEffectModel;  // Use kamikaze boom model instead of dishFlashModel
 		shader = cgs.media.bfgExplosionShader;
-		sfx = cgs.media.sfx_rockexp;
+		sfx = cgs.media.kamikazeExplodeSound;  // Use kamikaze explosion sound
 		mark = cgs.media.burnMarkShader;
-		radius = 160;  // Changed from 32 to 160 (5x larger)
-		light = 300;   // You might want to increase this too
+		radius = 1600;  // Changed from 32 to 160 (5x larger)
+		light = 3000;   // You might want to increase this too
 		isSprite = qtrue;
 		break;
 	case WP_SHOTGUN:
@@ -4638,31 +4638,49 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 	// create the explosion
 	//
 	if ( mod ) {
-		le = CG_MakeExplosion( origin, dir, mod, shader, duration, isSprite);
-		if (missileStatus) {
-			// if this explosion replaces a wrongfully predicted
-			// explosion of a missile, remove the old explosion now
-			CG_RemoveOldMissileExplosion(missileStatus);
-			missileStatus->expLEntityID = le->id;
-		}
-		le->light = light;
-		VectorCopy( lightColor, le->lightColor );
-		
-		// Add this condition to scale up the BFG explosion
+		// Special handling for BFG - use kamikaze effect
 		if ( weapon == WP_BFG ) {
-			VectorScale( le->refEntity.axis[0], 5.0f, le->refEntity.axis[0] );
-			VectorScale( le->refEntity.axis[1], 5.0f, le->refEntity.axis[1] );
-			VectorScale( le->refEntity.axis[2], 5.0f, le->refEntity.axis[2] );
+			// Create the main kamikaze explosion effect
+			CG_KamikazeEffect( origin );
+			
+			// Still create the normal explosion for additional effect
+			le = CG_MakeExplosion( origin, dir, mod, shader, duration, isSprite);
+			if (missileStatus) {
+				// if this explosion replaces a wrongfully predicted
+				// explosion of a missile, remove the old explosion now
+				CG_RemoveOldMissileExplosion(missileStatus);
+				missileStatus->expLEntityID = le->id;
+			}
+			le->light = light;
+			VectorCopy( lightColor, le->lightColor );
+			
+			// Scale up the explosion
+			VectorScale( le->refEntity.axis[0], 50.0f, le->refEntity.axis[0] );
+			VectorScale( le->refEntity.axis[1], 50.0f, le->refEntity.axis[1] );
+			VectorScale( le->refEntity.axis[2], 50.0f, le->refEntity.axis[2] );
 			le->refEntity.nonNormalizedAxes = qtrue;
-		}
-		
-		if ( weapon == WP_RAILGUN ) {
-			// colorize with client color
-			VectorCopy( cgs.clientinfo[clientNum].color1, le->color );
-			le->refEntity.shaderRGBA[0] = le->color[0] * 0xff;
-			le->refEntity.shaderRGBA[1] = le->color[1] * 0xff;
-			le->refEntity.shaderRGBA[2] = le->color[2] * 0xff;
-			le->refEntity.shaderRGBA[3] = 0xff;
+			
+			// Also play the implode sound after a delay
+			trap_S_StartLocalSound(cgs.media.kamikazeImplodeSound, CHAN_AUTO);
+		} else {
+			le = CG_MakeExplosion( origin, dir, mod, shader, duration, isSprite);
+			if (missileStatus) {
+				// if this explosion replaces a wrongfully predicted
+				// explosion of a missile, remove the old explosion now
+				CG_RemoveOldMissileExplosion(missileStatus);
+				missileStatus->expLEntityID = le->id;
+			}
+			le->light = light;
+			VectorCopy( lightColor, le->lightColor );
+			
+			if ( weapon == WP_RAILGUN ) {
+				// colorize with client color
+				VectorCopy( cgs.clientinfo[clientNum].color1, le->color );
+				le->refEntity.shaderRGBA[0] = le->color[0] * 0xff;
+				le->refEntity.shaderRGBA[1] = le->color[1] * 0xff;
+				le->refEntity.shaderRGBA[2] = le->color[2] * 0xff;
+				le->refEntity.shaderRGBA[3] = 0xff;
+			}
 		}
 	}
 

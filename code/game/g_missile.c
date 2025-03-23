@@ -332,7 +332,23 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	dir[2] = 1;
 
 	ent->s.eType = ET_GENERAL;
-	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
+	
+	// Special handling for BFG explosion - add kamikaze-like event
+	if (ent->s.weapon == WP_BFG) {
+		// Create a kamikaze-like explosion event
+		gentity_t *te = G_TempEntity( origin, EV_KAMIKAZE );
+		te->r.svFlags |= SVF_BROADCAST;
+		
+		// Add a global sound for the BFG explosion
+		te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND);
+		te->r.svFlags |= SVF_BROADCAST;
+		te->s.eventParm = GTS_KAMIKAZE;
+		
+		// Create standard explosion event as well
+		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
+	} else {
+		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
+	}
 
 	ent->freeAfterEvent = qtrue;
 
