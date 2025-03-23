@@ -33,7 +33,7 @@ pml_t		pml;
 // movement parameters
 const float	pm_stopspeed = 100.0f;
 const float	pm_duckScale = 0.25f;
-const float	pm_swimScale = 0.50;
+const float	pm_swimScale = 0.50f;
 const float	pm_swimScaleFast = 0.75f;
 const float	pm_wadeScale = 0.70f;
 
@@ -363,7 +363,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 	}
 
 	total = sqrt( cmd->forwardmove * cmd->forwardmove
-		+ cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove );
+		+ cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove);
 	scale = (float)pm->ps->speed * max / ( 127.0 * total );
 
 	return scale;
@@ -1872,11 +1872,16 @@ static void PM_BeginWeaponChange( int weapon ) {
         {
             //PM_AddEvent( EV_CHANGE_WEAPON );
             pm->ps->weaponstate = WEAPON_DROPPING;
-	    if (pm->pmove_ratflags & RAT_FASTSWITCH) {
-		    pm->ps->weaponTime += 100;
-	    } else {
-		    pm->ps->weaponTime += 200;
-	    }
+            // Skip adding weaponTime when QQ mode is enabled
+            if (pm->pmove_ratflags & RAT_QQ) {
+                pm->ps->weaponTime = 0;
+            } else {
+                if (pm->pmove_ratflags & RAT_FASTSWITCH) {
+                    pm->ps->weaponTime += 100;
+                } else {
+                    pm->ps->weaponTime += 200;
+                }
+            }
             PM_StartTorsoAnim( TORSO_DROP );
         }
 }
@@ -1899,14 +1904,23 @@ static void PM_FinishWeaponChange( void ) {
 		weapon = WP_NONE;
 	}
 
+	// Reset weapon cooldown when g_qq is enabled (QQ mode)
+	// This makes it possible to shoot again immediately after weapon switch
+	if (pm->pmove_ratflags & RAT_QQ) {
+		pm->ps->weaponTime = 0;
+	}
+
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
         if(! (pm->pmove_flags & DF_INSTANT_WEAPON_CHANGE))
         {
-		if (pm->pmove_ratflags & RAT_FASTSWITCH) {
-			pm->ps->weaponTime += 200;
-		} else {
-			pm->ps->weaponTime += 250;
+		// Skip adding weaponTime when QQ mode is enabled
+		if (!(pm->pmove_ratflags & RAT_QQ)) {
+			if (pm->pmove_ratflags & RAT_FASTSWITCH) {
+				pm->ps->weaponTime += 200;
+			} else {
+				pm->ps->weaponTime += 250;
+			}
 		}
                 PM_StartTorsoAnim( TORSO_RAISE );
         }
@@ -1986,7 +2000,7 @@ static void PM_Weapon( void ) {
 	// check for weapon change
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
-	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
+	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING || (pm->pmove_ratflags & RAT_QQ) ) {
 		if ( pm->ps->weapon != pm->cmd.weapon ) {
 			PM_BeginWeaponChange( pm->cmd.weapon );
 		}

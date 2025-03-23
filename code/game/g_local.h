@@ -1771,6 +1771,8 @@ extern  vmCvar_t	g_enableGreenArmor;
 
 extern  vmCvar_t	g_readSpawnVarFiles;
 
+extern  vmCvar_t	g_qq;           // QQ quick scope mode - allows weapon switching to reset cooldown
+
 extern vmCvar_t		g_damageThroughWalls;
 
 extern  vmCvar_t	g_pingEqualizer;

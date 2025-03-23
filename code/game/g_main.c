@@ -306,6 +306,8 @@ vmCvar_t	g_enableGreenArmor;
 
 vmCvar_t	g_readSpawnVarFiles;
 
+vmCvar_t	g_qq;
+
 vmCvar_t	g_damageThroughWalls;
 
 vmCvar_t	g_pingEqualizer;
@@ -743,6 +745,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_railgunResetOnKill,	"g_railgunResetOnKill", "0", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_lgDamage, 			"g_lgDamage", "7", 0, 0, qtrue },
 	{ &g_gauntDamage,		"g_gauntDamage", "50", 0, 0, qtrue },
+
+	{ &g_qq,			"g_qq", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
 
 	{ &g_railJump, 			"g_railJump", "0", CVAR_ARCHIVE, 0, qtrue },
 
@@ -1750,6 +1754,10 @@ void G_UpdateRatFlags( void ) {
 		rflags |= RAT_FORCETAUNTS;
 	}
 
+	if (g_qq.integer) {
+		rflags |= RAT_QQ;
+	}
+
 	// XXX --> also update code where this is called!
 
 	trap_Cvar_Set("g_ratFlags",va("%i",rflags));
@@ -1856,6 +1864,7 @@ void G_UpdateCvars( void ) {
 						|| cv->vmCvar == &g_slideMode
                         || cv->vmCvar == &g_offhandGrapple
 						|| cv->vmCvar == &g_tauntForceOn
+						|| cv->vmCvar == &g_qq
 						) {
 					updateRatFlags = qtrue;
 				}
