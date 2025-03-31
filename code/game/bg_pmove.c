@@ -2070,22 +2070,22 @@ static void PM_Weapon( void ) {
 	switch( pm->ps->weapon ) {
 	default:
 	case WP_GAUNTLET:
-		addTime = 200;
+		addTime = 600;
 		break;
 	case WP_LIGHTNING:
-		addTime = 10;
+		addTime = 50;
 		break;
 	case WP_SHOTGUN:
-		addTime = 500;
+		addTime = 350;
 		break;
 	case WP_MACHINEGUN:
 		addTime = 50;
 		break;
 	case WP_GRENADE_LAUNCHER:
-		addTime = 400;
+		addTime = 3000;
 		break;
 	case WP_ROCKET_LAUNCHER:
-		addTime = 600;
+		addTime = 700;
 		break;
 	case WP_PLASMAGUN:
 		addTime = 50;
@@ -2098,7 +2098,7 @@ static void PM_Weapon( void ) {
 		}
 		break;
 	case WP_BFG:
-		addTime = 2000;
+		addTime = 20000;
 		break;
 	case WP_GRAPPLING_HOOK:
 		addTime = 50;
@@ -2110,7 +2110,7 @@ static void PM_Weapon( void ) {
 		addTime = 800;
 		break;
 	case WP_CHAINGUN:
-		addTime = 30;
+		addTime = 20;
 		break;
 	}
 
