@@ -24,25 +24,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // Weapon progression order from best to worst
 static const int g_gunGameWeaponOrder[] = {
-    WP_LIGHTNING,
-    WP_LIGHTNING,
-    WP_LIGHTNING,
     WP_NAILGUN,
     WP_NAILGUN,
     WP_NAILGUN,
+    WP_SHOTGUN,
+    WP_SHOTGUN,
+    WP_SHOTGUN,
     WP_ROCKET_LAUNCHER,
     WP_ROCKET_LAUNCHER,
     WP_ROCKET_LAUNCHER,
-    WP_RAILGUN,
-    WP_RAILGUN,
     WP_PLASMAGUN,
     WP_PLASMAGUN,
     WP_CHAINGUN,
     WP_CHAINGUN,
+    WP_RAILGUN,
+    WP_RAILGUN,
+    WP_LIGHTNING,
+    WP_LIGHTNING,
+    WP_LIGHTNING,
     WP_MACHINEGUN,
     WP_MACHINEGUN,
-    WP_SHOTGUN,
-    WP_SHOTGUN,
     WP_GAUNTLET
 };
 
@@ -104,55 +105,9 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
     G_Printf("kill_Score attacker: %d\n", attacker->client->ps.persistant[PERS_SCORE]);
     G_Printf("kill_Score target: %d\n", target->client->ps.persistant[PERS_SCORE]);
     
-    if (!target || !target->client) {
-        return;
-    }
-    
-    // Handle self-kills (suicide, falling, environmental damage)
-    if (!attacker || !attacker->client || attacker == target) {
-        int currentLevel = target->client->pers.kills;
-        
-        // If the player died from falling, suicide, or environmental damage
-        if (meansOfDeath == MOD_FALLING || meansOfDeath == MOD_SUICIDE || 
-            meansOfDeath == MOD_WATER || meansOfDeath == MOD_SLIME || 
-            meansOfDeath == MOD_LAVA || meansOfDeath == MOD_TRIGGER_HURT) {
-            
-            // Decrease the player's score/level
-            if (currentLevel > 0) {
-                currentLevel--;
-                
-                // Clear all weapons
-                for (i = 0; i < WP_NUM_WEAPONS; i++) {
-                    target->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
-                    target->client->ps.ammo[i] = 0;
-                }
-                
-                // Give the previous weapon in the progression
-                weapon = G_GunGame_GetWeaponForLevel(currentLevel);
-                target->client->ps.stats[STAT_WEAPONS] |= (1 << weapon);
-                
-                // Set ammo (except for gauntlet which doesn't need ammo)
-                if (weapon != WP_GAUNTLET) {
-                    target->client->ps.ammo[weapon] = 999;
-                }
-                
-                // Set the current weapon
-                target->client->ps.weapon = weapon;
-                
-                // Update the score (which represents the level)
-                target->client->pers.kills = score;
-
-                
-                // Inform the player
-                trap_SendServerCommand(target->s.number, va("cp \"You lost a level! Weapon downgraded to %s\n\"", 
-                                                        BG_FindItemForWeapon(weapon)->pickup_name));
-                
-                G_Printf("GunGame: Player %s dropped to level %d due to self-kill\n", 
-                        target->client->pers.netname, currentLevel);
-            }
-        }
-        return;
-    }
+    // if (!attacker || !attacker->client || !target || !target->client || attacker == target) {
+    //     return;
+    // }
     
     // Check for win condition: player is at the last level AND kills with a gauntlet
     if (meansOfDeath == MOD_GAUNTLET && attacker->client->ps.weapon == WP_GAUNTLET) {
@@ -168,30 +123,12 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
             // End the round
             LogExit("GunGame round won.", qtrue);
             return;
-        } else {
-            score = target->client->pers.kills;
-            if (score > 0) {
-                score--; // Decrement score
-                
-                // Update the score
-                target->client->pers.kills = score;
-
-                G_Printf("MATOU NA FACA, SCORE DEPOIS: %d\n", target->client->pers.kills );
-                
-                // Inform the player
-                trap_SendServerCommand(target->s.number, va("cp \"vc caiu de level pra %s\n\"", 
-                                                        BG_FindItemForWeapon(weapon)->pickup_name));
-                
-                G_Printf("GunGame: Player %s dropped to score %d\n", target->client->pers.netname, score);
-            }
         }
     }
 
     // Progress the attacker to the next weapon (which is a worse weapon)
     score = attacker->client->pers.kills;
-    
-    G_Printf("means of death: %d\n", meansOfDeath);
-    G_Printf("attacker weapon: %d\n", attacker->client->ps.weapon);
+    // score++; // Increment score
     
     G_Printf("GunGame: Player %s is at score %d\n", attacker->client->pers.netname, score);
     
@@ -228,17 +165,66 @@ void G_GunGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
         if (score > 0) {
             score--; // Decrement score
             
+            // // Clear all weapons
+            // for (i = 0; i < WP_NUM_WEAPONS; i++) {
+            //     target->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
+            //     target->client->ps.ammo[i] = 0;
+            // }
+
+            // // Give the previous weapon in the progression
+            // weapon = G_GunGame_GetWeaponForLevel(score);
+            // target->client->ps.stats[STAT_WEAPONS] |= (1 << weapon);
+            
+            // // Always give the gauntlet as well
+            // target->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
+
+            // // Set ammo for the main weapon
+            // if (weapon != WP_GAUNTLET) {
+            //     target->client->ps.ammo[weapon] = 999;
+            // }
+            
+            // // Set gauntlet ammo
+            // target->client->ps.ammo[WP_GAUNTLET] = -1;
+            
+            // // Set the current weapon
+            // target->client->ps.weapon = weapon;
+            
             // Update the score
             target->client->pers.kills = score;
 
-            G_Printf("MATOU NA FACA, SCORE DEPOIS: %d\n", target->client->pers.kills );
-            
             // Inform the player
             trap_SendServerCommand(target->s.number, va("cp \"vc caiu de level pra %s\n\"", 
                                                     BG_FindItemForWeapon(weapon)->pickup_name));
             
             G_Printf("GunGame: Player %s dropped to score %d\n", target->client->pers.netname, score);
         }
+    } else {
+        // // If not killed by gauntlet, just update the weapon without changing score
+        // score = target->client->ps.persistant[PERS_SCORE];
+        
+        // // Clear all weapons
+        // for (i = 0; i < WP_NUM_WEAPONS; i++) {
+        //     target->client->ps.stats[STAT_WEAPONS] &= ~(1 << i);
+        //     target->client->ps.ammo[i] = 0;
+        // }
+
+        // // Give the weapon for current level
+        // weapon = G_GunGame_GetWeaponForLevel(score);
+        // target->client->ps.stats[STAT_WEAPONS] |= (1 << weapon);
+        
+        // // Always give the gauntlet as well
+        // target->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
+
+        // // Set ammo for the main weapon
+        // if (weapon != WP_GAUNTLET) {
+        //     target->client->ps.ammo[weapon] = 999;
+        // }
+        
+        // // Set gauntlet ammo
+        // target->client->ps.ammo[WP_GAUNTLET] = -1;
+        
+        // // Set the current weapon
+        // target->client->ps.weapon = weapon;
     }
 }
     
