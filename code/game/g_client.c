@@ -3511,6 +3511,14 @@ if (G_IsGunGameGT()) {
 	ent->health = client->ps.stats[STAT_ARMOR] = 100;
 	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
 }
+else if (g_gametype.integer == GT_TAGGAME) {
+	// Initialize the client for TagGame
+	G_TagGame_InitClient(client);
+	
+	// Set health and armor
+	ent->health = client->ps.stats[STAT_ARMOR] = 100;
+	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
+}
 else if(!G_IsElimGT() && !g_elimination_allgametypes.integer)
 {
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );

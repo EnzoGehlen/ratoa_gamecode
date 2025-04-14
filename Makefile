@@ -1772,6 +1772,7 @@ Q3GOBJ_ = \
   $(B)/baseq3/game/g_stats.o \
   $(B)/baseq3/game/g_weapon.o \
   $(B)/baseq3/game/g_gungame.o \
+  $(B)/baseq3/game/g_taggame.o \
   \
   $(B)/baseq3/qcommon/q_math.o \
   $(B)/baseq3/qcommon/q_shared.o
@@ -1833,6 +1834,7 @@ MPGOBJ_ = \
   $(B)/missionpack/game/g_stats.o \
   $(B)/missionpack/game/g_weapon.o \
   $(B)/missionpack/game/g_gungame.o \
+  $(B)/missionpack/game/g_taggame.o \
   \
   $(B)/missionpack/qcommon/q_math.o \
   $(B)/missionpack/qcommon/q_shared.o

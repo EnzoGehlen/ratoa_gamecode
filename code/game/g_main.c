@@ -183,6 +183,7 @@ vmCvar_t	g_elimination_chain;
 vmCvar_t	g_elimination_mine;
 vmCvar_t	g_elimination_nail;
 vmCvar_t	g_gungame;
+vmCvar_t	g_taggame;
 
 vmCvar_t        g_elimination_lockspectator;
 
@@ -6665,6 +6666,10 @@ void G_RunFrame( int levelTime ) {
 		CheckGunGame();
 	}
 
+	if ( g_gametype.integer == GT_TAGGAME ) {
+		CheckTagGame();
+	}
+	
 	if ( G_IsElimGT() ) {
 		CheckElimination();
 	}
@@ -6728,4 +6733,94 @@ void G_CheckUnlockTeams(void) {
 		trap_SendServerCommand( -1, va("print \"^5Server: unlocking teams due to lack of human players!\n"));
 		G_UnlockTeams();
 	}
+}
+
+/*
+=============
+CheckTagGame
+=============
+*/
+
+void CheckTagGame(void) {
+	int i;
+	int bots = 0;
+	int humans = 0;
+	int numPlayers = 0;
+	qboolean allPlayersOnSameTeam = qtrue;
+	team_t firstTeam = TEAM_FREE;
+	
+	// Count actual players and bots for diagnostics
+	for (i = 0; i < level.maxclients; i++) {
+		if (level.clients[i].pers.connected == CON_CONNECTED && 
+			g_entities[i].inuse && 
+			level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) {
+			
+			numPlayers++;
+			
+			// Track humans vs bots
+			if (g_entities[i].r.svFlags & SVF_BOT) {
+				bots++;
+			} else {
+				humans++;
+			}
+			
+			// Check if all players are on the same team
+			if (firstTeam == TEAM_FREE) {
+				firstTeam = level.clients[i].sess.sessionTeam;
+			} else if (level.clients[i].sess.sessionTeam != firstTeam) {
+				allPlayersOnSameTeam = qfalse;
+			}
+		}
+	}
+	
+	// Log the current state to help diagnose bot issues
+	if (level.time % 5000 < 50) { // Only log every 5 seconds
+		G_Printf("TagGame: Status - %d players (%d humans, %d bots), Game active: %s, Teams same: %s\n", 
+				numPlayers, humans, bots, 
+				G_TagGame_IsActive() ? "yes" : "no",
+				allPlayersOnSameTeam ? "yes" : "no");
+	}
+	
+	// Don't run TagGame logic if we don't have enough players (minimum 3)
+	if (numPlayers < 3) {
+		// If we have a game in progress but lost players, reset it
+		if (G_TagGame_IsActive()) {
+			trap_SendServerCommand(-1, va("cp \"Not enough players to continue Tag Game!\n\""));
+			G_Printf("TagGame: Not enough players to continue, resetting game state\n");
+			G_TagGame_Reset();
+		}
+		return;
+	}
+	
+	// If the game is not in progress and all players are on the same team,
+	// make sure to reset team assignments to prepare for starting a new game
+	if (!G_TagGame_IsActive() && allPlayersOnSameTeam && firstTeam != TEAM_FREE && numPlayers >= 3) {
+		// Reset teams if everyone's on the same team
+		G_Printf("TagGame: All players on same team (%s), resetting team assignments\n", 
+				firstTeam == TEAM_RED ? "red" : "blue");
+		level.RedTeamLocked = qfalse;
+		level.BlueTeamLocked = qfalse;
+		
+		// Move all players to free team to allow proper team assignment
+		for (i = 0; i < level.maxclients; i++) {
+			gentity_t *player = &g_entities[i];
+			if (player->inuse && player->client && player->client->pers.connected == CON_CONNECTED && 
+				player->client->sess.sessionTeam != TEAM_SPECTATOR) {
+				
+				// Use SetTeam_Force for all players for consistency
+				SetTeam_Force(player, "f", NULL, qtrue);
+				
+				// Extra handling for bots to ensure team state is correct
+				if (player->r.svFlags & SVF_BOT) {
+					// Force team update
+					player->client->sess.sessionTeam = TEAM_FREE;
+					player->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+					ClientSpawn(player);
+				}
+			}
+		}
+	}
+
+	// Check and run TagGame game logic
+	G_TagGame_CheckRound();
 }

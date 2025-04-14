@@ -1059,6 +1059,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if (G_IsGunGameGT() && attacker && attacker->client) {
 		G_GunGame_PlayerKilled(attacker, self, meansOfDeath);
 	}
+	
+	// Handle TagGame team conversion
+	if (g_gametype.integer == GT_TAGGAME && attacker && attacker->client) {
+		G_TagGame_PlayerKilled(attacker, self, meansOfDeath);
+	}
 
 	if ( killer < 0 || killer >= MAX_CLIENTS ) {
 		killer = ENTITYNUM_WORLD;

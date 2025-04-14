@@ -148,9 +148,8 @@ typedef enum {
 	GT_DOMINATION,			// Standard domination 12
 	GT_TREASURE_HUNTER,			
 	GT_GUNGAME,			// GunGame - weapon progression on kills
-#ifdef WITH_MULTITOURNAMENT
+	GT_TAGGAME,			// TagGame - one player starts as catcher, converts others to catchers
 	GT_MULTITOURNAMENT,
-#endif
 	GT_MAX_GAME_TYPE
 	
 } gametype_t;

@@ -908,6 +908,8 @@ typedef struct {
 
     qboolean	tournamentForfeited;
     qboolean	tournamentStarted;
+    
+    qboolean    tagGameCheckEndNextFrame; // Used to schedule end condition checks
 
     qboolean	shuffling_teams;
     // restart the game at this time. Separate from warmupTime because this
@@ -2174,5 +2176,20 @@ extern vmCvar_t	g_elimination_chain;
 #endif
 
 extern vmCvar_t	g_gungame;
+extern vmCvar_t	g_taggame;
 
 extern vmCvar_t	g_voteEliminationRoundtime;
+
+// g_taggame.c
+void G_TagGame_InitClient(gclient_t *client);
+void G_TagGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfDeath);
+qboolean G_TagGame_CheckEndCondition(void);
+void G_TagGame_Reset(void);
+qboolean G_TagGame_IsActive(void);
+void G_TagGame_CheckRoundStart(void);
+void G_TagGame_CheckRound(void);
+
+void CheckLMS( void );
+void CheckElimination( void );
+void CheckGunGame( void );
+void CheckTagGame( void );
