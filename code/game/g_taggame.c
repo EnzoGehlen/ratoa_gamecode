@@ -73,14 +73,13 @@ void G_TagGame_SelectInitialCatcher(void) {
         G_Printf("TagGame: Initial team assignments starting. Catcher: %s\n", 
                 selectedPlayer->client->pers.netname);
         
-        // First, make sure all players are on free team to avoid issues
+        // First, reset all players to free team to avoid issues
         for (i = 0; i < level.maxclients; i++) {
             gentity_t *player = &g_entities[i];
             if (player->inuse && player->client && player->client->pers.connected == CON_CONNECTED && 
                 player->client->sess.sessionTeam != TEAM_SPECTATOR) {
                 // Set to free team first
-                player->client->sess.sessionTeam = TEAM_FREE;
-                player->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+                SetTeam_Force(player, "f", NULL, qtrue);
             }
         }
         
@@ -88,16 +87,8 @@ void G_TagGame_SelectInitialCatcher(void) {
         trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " is the catcher!\n\"", 
                                     selectedPlayer->client->pers.netname));
         
-        // First set the internal team state for the catcher
-        selectedPlayer->client->sess.sessionTeam = TEAM_RED;
-        selectedPlayer->client->ps.persistant[PERS_TEAM] = TEAM_RED;
-        
-        // Then call SetTeam_Force to handle UI and other team logic
+        // Set the catcher to red team
         SetTeam_Force(selectedPlayer, "r", NULL, qtrue);
-        
-        // Force team update again to ensure it persists
-        selectedPlayer->client->sess.sessionTeam = TEAM_RED;
-        selectedPlayer->client->ps.persistant[PERS_TEAM] = TEAM_RED;
         
         // Initialize catcher with proper weapons
         G_TagGame_InitClient(selectedPlayer->client);
@@ -105,9 +96,7 @@ void G_TagGame_SelectInitialCatcher(void) {
         // For bots, need extra handling
         if (selectedPlayer->r.svFlags & SVF_BOT) {
             ClientSpawn(selectedPlayer);
-            // Re-apply after spawn
-            selectedPlayer->client->sess.sessionTeam = TEAM_RED;
-            selectedPlayer->client->ps.persistant[PERS_TEAM] = TEAM_RED;
+            // Re-initialize after spawn
             G_TagGame_InitClient(selectedPlayer->client);
         }
         
@@ -118,35 +107,15 @@ void G_TagGame_SelectInitialCatcher(void) {
                 player->client->sess.sessionTeam != TEAM_SPECTATOR && 
                 player != selectedPlayer) {
                 
-                // First set the internal team state directly
-                player->client->sess.sessionTeam = TEAM_BLUE;
-                player->client->ps.persistant[PERS_TEAM] = TEAM_BLUE;
-                
-                // Then use SetTeam_Force for UI updates and other team logic
+                // Set runners to blue team
                 SetTeam_Force(player, "b", NULL, qtrue);
-                
-                // Force state update again to ensure it persists
-                player->client->sess.sessionTeam = TEAM_BLUE;
-                player->client->ps.persistant[PERS_TEAM] = TEAM_BLUE;
                 
                 // Initialize all runners with proper weapons
                 G_TagGame_InitClient(player->client);
                 
                 // Extra handling for bots to ensure team state is correct
                 if (player->r.svFlags & SVF_BOT) {
-                    // Reinitialize the bot at the current position
-                    vec3_t origin, angles;
-                    VectorCopy(player->client->ps.origin, origin);
-                    VectorCopy(player->client->ps.viewangles, angles);
                     ClientSpawn(player);
-                    VectorCopy(origin, player->client->ps.origin);
-                    VectorCopy(angles, player->client->ps.viewangles);
-                    
-                    // Re-apply team state after spawn
-                    player->client->sess.sessionTeam = TEAM_BLUE;
-                    player->client->ps.persistant[PERS_TEAM] = TEAM_BLUE;
-                    
-                    // Make sure they have the right weapons
                     G_TagGame_InitClient(player->client);
                 }
             }
@@ -202,17 +171,6 @@ void G_TagGame_InitClient(gclient_t *client) {
     client->ps.ammo[WP_GAUNTLET] = -1; // Unlimited ammo
     client->ps.weapon = WP_GAUNTLET;   // Set active weapon
     
-    // Always ensure team state is consistent in all team-related fields
-    if (client->sess.sessionTeam == TEAM_RED) {
-        client->ps.persistant[PERS_TEAM] = TEAM_RED;
-        // These may be redundant but ensure all team flags are consistent
-        ent->client->sess.sessionTeam = TEAM_RED;
-    } else if (client->sess.sessionTeam == TEAM_BLUE) {
-        client->ps.persistant[PERS_TEAM] = TEAM_BLUE;
-        // These may be redundant but ensure all team flags are consistent
-        ent->client->sess.sessionTeam = TEAM_BLUE;
-    }
-    
     // For bots, make sure their AI knows their team
     if (ent->r.svFlags & SVF_BOT) {
         // Force respawn to update bot team state
@@ -261,26 +219,17 @@ void G_TagGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
             
             G_Printf("TagGame: %s was converted to a catcher\n", target->client->pers.netname);
             
-            // First force the internal team state to ensure it's updated
-            target->client->sess.sessionTeam = TEAM_RED;
-            target->client->ps.persistant[PERS_TEAM] = TEAM_RED;
-            
-            // Then call SetTeam_Force to handle UI updates and other team logic
+            // Set the caught player to the red team (catcher)
             SetTeam_Force(target, "r", NULL, qtrue);
             
-            // Ensure team state is correctly set after SetTeam_Force
-            target->client->sess.sessionTeam = TEAM_RED;
-            target->client->ps.persistant[PERS_TEAM] = TEAM_RED;
-            
-            // For all players, ensure proper initialization
+            // Initialize client with proper weapons
             G_TagGame_InitClient(target->client);
             
             // For bots, need more explicit handling
             if (target->r.svFlags & SVF_BOT) {
                 // Force a respawn to ensure all bot AI knows about the team change
                 ClientSpawn(target);
-                
-                // Re-apply TagGame settings after spawn
+                // Re-initialize after spawn
                 G_TagGame_InitClient(target->client);
             }
             
@@ -398,16 +347,13 @@ void G_TagGame_Reset(void) {
                 (player->client->sess.sessionTeam == TEAM_RED || 
                  player->client->sess.sessionTeam == TEAM_BLUE)) {
                  
-                // Handle differently for bots and humans
-                if (player->r.svFlags & SVF_BOT) {
-                    // For bots, directly set team
-                    player->client->sess.sessionTeam = TEAM_FREE;
-                    player->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
-                    ClientBegin(player->s.number);
-                } else {
-                    // Reset to free team (if not team-based gametype) or balance teams
-                    if (!G_IsTeamGametype() || g_gametype.integer == GT_TAGGAME) {
-                        SetTeam_Force(player, "f", NULL, qtrue);
+                // Reset to free team (if not team-based gametype) or balance teams
+                if (!G_IsTeamGametype() || g_gametype.integer == GT_TAGGAME) {
+                    SetTeam_Force(player, "f", NULL, qtrue);
+                    
+                    // Extra handling for bots
+                    if (player->r.svFlags & SVF_BOT) {
+                        ClientSpawn(player);
                     }
                 }
             }
