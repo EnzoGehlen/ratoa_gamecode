@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Global variable to track if the initial catcher has been selected
 static qboolean g_tagGameCatcherSelected = qfalse;
 static qboolean g_tagGameInProgress = qfalse;
+static char g_tagGameCatcherName[MAX_NAME_LENGTH] = "";
+static char g_tagGameLastWinnerName[MAX_NAME_LENGTH] = "";
+static int g_tagGameWinType = 0; // 0 = none, 1 = last survivor, 2 = all caught
 
 /*
 =================
@@ -69,6 +72,9 @@ void G_TagGame_SelectInitialCatcher(void) {
         level.RedTeamLocked = qfalse;
         level.BlueTeamLocked = qfalse;
         
+        // Save the catcher's name for future reference
+        Q_strncpyz(g_tagGameCatcherName, selectedPlayer->client->pers.netname, sizeof(g_tagGameCatcherName));
+        
         // Log initial team assignments
         G_Printf("TagGame: Initial team assignments starting. Catcher: %s\n", 
                 selectedPlayer->client->pers.netname);
@@ -83,8 +89,10 @@ void G_TagGame_SelectInitialCatcher(void) {
             }
         }
         
-        // Then announce the initial catcher
+        // Then announce the initial catcher with a large center print and chat message
         trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " is the catcher!\n\"", 
+                                    selectedPlayer->client->pers.netname));
+        trap_SendServerCommand(-1, va("print \"^1>>> TAG GAME STARTED: ^7%s^1 is the catcher! ^7Run away from them!\n\"", 
                                     selectedPlayer->client->pers.netname));
         
         // Set the catcher to red team
@@ -216,6 +224,8 @@ void G_TagGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
             // Announce the conversion
             trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " was caught and is now a catcher!\n\"", 
                                         target->client->pers.netname));
+            trap_SendServerCommand(-1, va("print \"^1>>> ^7%s^1 was caught by ^7%s^1 and is now a catcher!\n\"", 
+                                        target->client->pers.netname, attacker->client->pers.netname));
             
             G_Printf("TagGame: %s was converted to a catcher\n", target->client->pers.netname);
             
@@ -237,6 +247,24 @@ void G_TagGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfD
             level.tagGameCheckEndNextFrame = qtrue;
         }
     }
+}
+
+/*
+=================
+G_TagGame_EndRound
+=================
+*/
+void G_TagGame_EndRound(void) {
+    // Reset game state variables
+    g_tagGameCatcherSelected = qfalse;
+    g_tagGameInProgress = qfalse;
+    
+    // Unlock teams when game ends
+    level.RedTeamLocked = qfalse;
+    level.BlueTeamLocked = qfalse;
+    
+    // Begin intermission to show scoreboard
+    LogExit("Tag Game round ended.", qtrue);
 }
 
 /*
@@ -276,19 +304,26 @@ qboolean G_TagGame_CheckEndCondition(void) {
         trap_SendServerCommand(-1, "cp \"Not enough players to continue Tag Game!\n\"");
         G_Printf("TagGame: Not enough players to continue (%d)\n", totalPlayers);
         
-        // Reset the game state
+        // Reset the game state and use proper intermission
         g_tagGameCatcherSelected = qfalse;
         g_tagGameInProgress = qfalse;
+        g_tagGameWinType = 0;
         
-        // Schedule map restart instead of immediate exit to prevent race conditions
-        level.exitTime = level.time + 5000; // 5 second delay
+        // Begin intermission to show scoreboard
+        LogExit("Tag Game ended - not enough players.", qtrue);
         return qtrue;
     }
     
     // If only one player remains on blue team, end the round
     if (blueCount == 1 && lastBluePlayer) {
+        // Save winner info
+        Q_strncpyz(g_tagGameLastWinnerName, lastBluePlayer->client->pers.netname, sizeof(g_tagGameLastWinnerName));
+        g_tagGameWinType = 1; // Last survivor
+        
         // Announce the winner
         trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " is the last survivor!\n\"", 
+                                    lastBluePlayer->client->pers.netname));
+        trap_SendServerCommand(-1, va("print \"^2>>> ROUND OVER: ^7%s^2 is the last survivor! ^7They earn 3 bonus points!\n\"", 
                                     lastBluePlayer->client->pers.netname));
         
         G_Printf("TagGame: %s is the last survivor\n", lastBluePlayer->client->pers.netname);
@@ -296,28 +331,53 @@ qboolean G_TagGame_CheckEndCondition(void) {
         // Award bonus points to the winner (3 points for surviving)
         lastBluePlayer->client->ps.persistant[PERS_SCORE] += 3;
         
-        // Reset the game state
-        g_tagGameCatcherSelected = qfalse;
-        g_tagGameInProgress = qfalse;
-        
-        // Schedule map restart instead of immediate exit
-        level.exitTime = level.time + 5000; // 5 second delay
+        // End the round with a proper intermission
+        G_TagGame_EndRound();
         return qtrue;
     } else if (blueCount == 0) {
         // All players have been caught
+        g_tagGameWinType = 2; // All caught
+        
+        // Announce the end
         trap_SendServerCommand(-1, "cp \"All players have been caught!\n\"");
+        trap_SendServerCommand(-1, va("print \"^1>>> ROUND OVER: ^7All players have been caught! ^7Initial catcher: %s\n\"", 
+                               g_tagGameCatcherName));
+        
         G_Printf("TagGame: All players have been caught\n");
         
-        // Reset the game state
-        g_tagGameCatcherSelected = qfalse;
-        g_tagGameInProgress = qfalse;
-        
-        // Schedule map restart instead of immediate exit
-        level.exitTime = level.time + 5000; // 5 second delay
+        // End the round with a proper intermission
+        G_TagGame_EndRound();
         return qtrue;
     }
     
     return qfalse;
+}
+
+/*
+=================
+G_TagGame_DisplayIntermissionMessage
+=================
+*/
+void G_TagGame_DisplayIntermissionMessage(void) {
+    // Only display if we're in intermission and have a valid end state
+    if (!level.intermissiontime || g_tagGameInProgress) {
+        return;
+    }
+    
+    // Display appropriate message based on how the round ended
+    switch (g_tagGameWinType) {
+        case 1: // Last survivor
+            trap_SendServerCommand(-1, va("cp \"^2Round Ended\n\n^7%s^2 was the last survivor!\n\n^3Starting new round soon...\n\"", 
+                                       g_tagGameLastWinnerName));
+            break;
+        case 2: // All caught
+            trap_SendServerCommand(-1, va("cp \"^1Round Ended\n\n^7All players were caught!\n^7Initial catcher: ^1%s\n\n^3Starting new round soon...\n\"", 
+                                       g_tagGameCatcherName));
+            break;
+        default:
+            trap_SendServerCommand(-1, "cp \"^3Round Ended\n\n^7Starting new round soon...\n\"");
+            break;
+    }
 }
 
 /*
@@ -330,6 +390,7 @@ void G_TagGame_Reset(void) {
     
     g_tagGameCatcherSelected = qfalse;
     g_tagGameInProgress = qfalse;
+    g_tagGameWinType = 0;
     
     // Unlock teams
     level.RedTeamLocked = qfalse;
@@ -452,6 +513,11 @@ void G_TagGame_CheckRound(void) {
             // Unlock teams when game ends
             level.RedTeamLocked = qfalse;
             level.BlueTeamLocked = qfalse;
+        }
+        
+        // Display intermission message
+        if (level.time % 5000 < 100) { // Refresh every 5 seconds during intermission
+            G_TagGame_DisplayIntermissionMessage();
         }
         return;
     }
