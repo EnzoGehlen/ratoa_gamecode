@@ -1061,7 +1061,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 	
 	// Handle TagGame team conversion
-	if (g_gametype.integer == GT_TAGGAME && attacker && attacker->client) {
+	if (g_gametype.integer == GT_TAGGAME) {
+		// Call for all deaths in tag game mode, regardless of attacker
 		G_TagGame_PlayerKilled(attacker, self, meansOfDeath);
 	}
 

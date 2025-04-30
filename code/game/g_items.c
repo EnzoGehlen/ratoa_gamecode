@@ -493,7 +493,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			(other->client->sess.sessionTeam==TEAM_RED && (level.eliminationSides+level.roundNumber)%2 != 0 ) ))
 		return;
 
-	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS || g_gametype.integer == GT_GUNGAME) && !g_elimination_spawnitems.integer)
+	if ((g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS) && !g_elimination_spawnitems.integer)
 		return;		//nothing to pick up in elimination
 
 	if (!other->client)
@@ -534,11 +534,17 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	// call the item-specific pickup function
 	switch( ent->item->giType ) {
 	case IT_WEAPON:
+		if (g_gametype.integer == GT_GUNGAME || g_gametype.integer == GT_TAGGAME) {
+			break;
+		}
 		respawn = Pickup_Weapon(ent, other);
 		overrideRespawn = g_overrideWeaponRespawn.integer;
 //		predict = qfalse;
 		break;
 	case IT_AMMO:
+		if (g_gametype.integer == GT_GUNGAME || g_gametype.integer == GT_TAGGAME) {
+			break;
+		}
 		respawn = Pickup_Ammo(ent, other);
 //		predict = qfalse;
 		break;

@@ -199,53 +199,119 @@ G_TagGame_PlayerKilled
 =================
 */
 void G_TagGame_PlayerKilled(gentity_t *attacker, gentity_t *target, int meansOfDeath) {
+    const char *deathMessage;
+    
     // Only process if the game is in progress
     if (!g_tagGameInProgress || level.intermissiontime) {
         return;
     }
     
+    // Check if target is valid
+    if (!target || !target->client) {
+        return;
+    }
+    
+    // Add detailed debug logging for all deaths
+    G_Printf("TagGame Debug: Player %s died with meansOfDeath %d, Team: %d\n", 
+             target->client->pers.netname, 
+             meansOfDeath,
+             target->client->sess.sessionTeam);
+    
     // Check team status for debug purposes
-    G_Printf("TagGame Kill: Attacker %s (team %d), Target %s (team %d)\n", 
-            attacker->client->pers.netname, 
-            attacker->client->sess.sessionTeam,
-            target->client->pers.netname,
-            target->client->sess.sessionTeam);
+    if (attacker && attacker->client) {
+        G_Printf("TagGame Kill: Attacker %s (team %d), Target %s (team %d), MeansOfDeath: %d\n", 
+                attacker->client->pers.netname, 
+                attacker->client->sess.sessionTeam,
+                target->client->pers.netname,
+                target->client->sess.sessionTeam,
+                meansOfDeath);
+    } else {
+        G_Printf("TagGame Kill: Target %s (team %d) died, MeansOfDeath: %d\n", 
+                target->client->pers.netname,
+                target->client->sess.sessionTeam,
+                meansOfDeath);
+    }
     
     // Check if a player was killed by a catcher (red team player kills blue team player)
-    if (attacker && attacker->client && target && target->client && 
+    if (attacker && attacker->client && 
         attacker->client->sess.sessionTeam == TEAM_RED && 
         target->client->sess.sessionTeam == TEAM_BLUE) {
         
         // Update score for the catcher
         attacker->client->ps.persistant[PERS_SCORE]++;
         
-        // Make sure the killed player is not a spectator
-        if (target->client->sess.sessionTeam == TEAM_BLUE) {
-            // Announce the conversion
-            trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " was caught and is now a catcher!\n\"", 
-                                        target->client->pers.netname));
-            trap_SendServerCommand(-1, va("print \"^1>>> ^7%s^1 was caught by ^7%s^1 and is now a catcher!\n\"", 
-                                        target->client->pers.netname, attacker->client->pers.netname));
-            
-            G_Printf("TagGame: %s was converted to a catcher\n", target->client->pers.netname);
-            
-            // Set the caught player to the red team (catcher)
-            SetTeam_Force(target, "r", NULL, qtrue);
-            
-            // Initialize client with proper weapons
+        // Announce the conversion
+        trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " was caught and is now a catcher!\n\"", 
+                                    target->client->pers.netname));
+        trap_SendServerCommand(-1, va("print \"^1>>> ^7%s^1 was caught by ^7%s^1 and is now a catcher!\n\"", 
+                                    target->client->pers.netname, attacker->client->pers.netname));
+        
+        G_Printf("TagGame: %s was converted to a catcher\n", target->client->pers.netname);
+        
+        // Set the caught player to the red team (catcher)
+        SetTeam_Force(target, "r", NULL, qtrue);
+        
+        // Initialize client with proper weapons
+        G_TagGame_InitClient(target->client);
+        
+        // For bots, need more explicit handling
+        if (target->r.svFlags & SVF_BOT) {
+            // Force a respawn to ensure all bot AI knows about the team change
+            G_Printf("TagGame Debug: Respawning bot %s after team change\n", target->client->pers.netname);
+            ClientSpawn(target);
+            // Re-initialize after spawn
             G_TagGame_InitClient(target->client);
-            
-            // For bots, need more explicit handling
-            if (target->r.svFlags & SVF_BOT) {
-                // Force a respawn to ensure all bot AI knows about the team change
-                ClientSpawn(target);
-                // Re-initialize after spawn
-                G_TagGame_InitClient(target->client);
-            }
-            
-            // Schedule end condition check for next frame to avoid race conditions
-            level.tagGameCheckEndNextFrame = qtrue;
         }
+        
+        // Schedule end condition check for next frame to avoid race conditions
+        level.tagGameCheckEndNextFrame = qtrue;
+    } 
+    // Handle case when a player on blue team dies from any other reason (suicide, environment, etc.)
+    else if (target->client->sess.sessionTeam == TEAM_BLUE) {
+        // Additional debug for blue team deaths
+        G_Printf("TagGame Debug: Blue player %s died. meansOfDeath=%d, trying to convert to catcher\n", 
+                 target->client->pers.netname, meansOfDeath);
+        
+        // Determine the message based on cause of death
+        if (meansOfDeath == MOD_SUICIDE || meansOfDeath == MOD_FALLING || meansOfDeath == MOD_WATER || 
+            meansOfDeath == MOD_SLIME || meansOfDeath == MOD_LAVA || meansOfDeath == MOD_CRUSH || 
+            meansOfDeath == MOD_TRIGGER_HURT) {
+            
+            G_Printf("TagGame Debug: Death type matches expected environmental death (MOD=%d)\n", meansOfDeath);
+            deathMessage = va("^1>>> ^7%s^1 died and is now a catcher!\n", target->client->pers.netname);
+        } else {
+            G_Printf("TagGame Debug: Death type doesn't match expected environmental death (MOD=%d)\n", meansOfDeath);
+            deathMessage = va("^1>>> ^7%s^1 died mysteriously and is now a catcher!\n", target->client->pers.netname);
+        }
+        
+        // Announce the conversion
+        trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " died and is now a catcher!\n\"", 
+                                    target->client->pers.netname));
+        trap_SendServerCommand(-1, deathMessage);
+        
+        G_Printf("TagGame: %s died and was converted to a catcher\n", target->client->pers.netname);
+        
+        // Set the dead player to the red team (catcher)
+        G_Printf("TagGame Debug: Before SetTeam_Force, player %s team: %d\n", 
+                 target->client->pers.netname, target->client->sess.sessionTeam);
+        SetTeam_Force(target, "r", NULL, qtrue);
+        G_Printf("TagGame Debug: After SetTeam_Force, player %s team: %d\n", 
+                 target->client->pers.netname, target->client->sess.sessionTeam);
+        
+        // Initialize client with proper weapons
+        G_TagGame_InitClient(target->client);
+        
+        // For bots, need more explicit handling
+        if (target->r.svFlags & SVF_BOT) {
+            // Force a respawn to ensure all bot AI knows about the team change
+            G_Printf("TagGame Debug: Respawning bot %s after team change\n", target->client->pers.netname);
+            ClientSpawn(target);
+            // Re-initialize after spawn
+            G_TagGame_InitClient(target->client);
+        }
+        
+        // Schedule end condition check for next frame to avoid race conditions
+        level.tagGameCheckEndNextFrame = qtrue;
     }
 }
 
@@ -323,13 +389,13 @@ qboolean G_TagGame_CheckEndCondition(void) {
         // Announce the winner
         trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " is the last survivor!\n\"", 
                                     lastBluePlayer->client->pers.netname));
-        trap_SendServerCommand(-1, va("print \"^2>>> ROUND OVER: ^7%s^2 is the last survivor! ^7They earn 3 bonus points!\n\"", 
+        trap_SendServerCommand(-1, va("print \"^2>>> ROUND OVER: ^7%s^2 is the last survivor! ^7They earn 100 bonus points!\n\"", 
                                     lastBluePlayer->client->pers.netname));
         
         G_Printf("TagGame: %s is the last survivor\n", lastBluePlayer->client->pers.netname);
         
-        // Award bonus points to the winner (3 points for surviving)
-        lastBluePlayer->client->ps.persistant[PERS_SCORE] += 3;
+        // Award bonus points to the winner (100 points for surviving)
+        lastBluePlayer->client->ps.persistant[PERS_SCORE] += 100;
         
         // End the round with a proper intermission
         G_TagGame_EndRound();
