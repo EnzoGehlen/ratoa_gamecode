@@ -139,6 +139,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_WARN            'w'
 #define ADMF_PLAYERHOOK      'X'
 #define ADMF_ALLREADY        'y'
+#define ADMF_RADIO           'z'
 
 #define MAX_ADMIN_LISTITEMS 20
 #define MAX_ADMIN_SHOWBANS 10
@@ -256,6 +257,8 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg );
 qboolean G_admin_ban( gentity_t *ent, int skiparg );
 qboolean G_admin_unban( gentity_t *ent, int skiparg );
 qboolean G_admin_playsound( gentity_t *ent, int skiparg );
+qboolean G_admin_radio( gentity_t *ent, int skiparg );
+qboolean G_admin_radiolist( gentity_t *ent, int skiparg );
 qboolean G_admin_putteam( gentity_t *ent, int skiparg );
 qboolean G_admin_playerhook( gentity_t *ent, int skiparg );
 qboolean G_admin_swap( gentity_t *ent, int skiparg );

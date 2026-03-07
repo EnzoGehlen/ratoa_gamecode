@@ -898,4 +898,6 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("ratversion");
 	trap_AddCommand ("help");
 	trap_AddCommand ("motd");
+	trap_AddCommand ("radio");
+	trap_AddCommand ("radiolist");
 }

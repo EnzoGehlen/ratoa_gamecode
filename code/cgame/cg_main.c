@@ -3897,6 +3897,7 @@ void CG_Shutdown( void ) {
 	// some mods may need to do cleanup work here,
 	// like closing files or archiving session data
 	challenges_save();
+	CG_Radio_Shutdown();
 }
 
 

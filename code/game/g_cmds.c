@@ -4442,6 +4442,22 @@ void Cmd_GetGTMappage_f( gentity_t *ent ) {
 	Cmd_GetMappage_f_impl(ent, qfalse, qtrue);
 }
 
+/*
+=================
+Cmd_Radio_f / Cmd_RadioList_f
+
+Console commands for the radio system. These reuse the admin handlers
+but are available as first-class console commands with tab completion.
+=================
+*/
+static void Cmd_Radio_f( gentity_t *ent ) {
+	G_admin_radio( ent, 0 );
+}
+
+static void Cmd_RadioList_f( gentity_t *ent ) {
+	G_admin_radiolist( ent, 0 );
+}
+
 //KK-OAX This is the table that ClientCommands runs the console entry against. 
 commands_t cmds[ ] = 
 {
@@ -4529,7 +4545,10 @@ commands_t cmds[ ] =
   { "help", 0, Cmd_Motd_f },
   { "nextmapvote", CMD_INTERMISSION|CMD_FLOODLIMITED, Cmd_NextmapVote_f },
   { "arena", 0, Cmd_Arena_f },
-  { "ratversion", 0, Cmd_RatVersion_f }
+  { "ratversion", 0, Cmd_RatVersion_f },
+
+  { "radio", CMD_INTERMISSION, Cmd_Radio_f },
+  { "radiolist", CMD_INTERMISSION, Cmd_RadioList_f }
 #ifdef WITH_MULTITOURNAMENT
   ,
   { "game", 0, Cmd_Game_f },
