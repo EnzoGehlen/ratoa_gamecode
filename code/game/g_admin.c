@@ -215,6 +215,16 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#^7] [^3h|a|s^7]"
     },
 
+    {"radio", "", G_admin_radio, ADMF_RADIO,
+      "start or stop a radio stream for all players",
+      "[^3url|number|stop^7]"
+    },
+
+    {"radiolist", "rl", G_admin_radiolist, ADMF_RADIO,
+      "list preset radio stations",
+      ""
+    },
+
     {"record", "", G_admin_record, ADMF_RECORD,
       "record a server-side demo",
       ""
@@ -2678,6 +2688,109 @@ qboolean G_admin_playsound( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
+
+
+static const char *g_radio_preset_names[] = {
+  "Hiper Techno",
+  "Germany techno radio",
+  "100% BPM",
+  "Rock classico",
+  "Hard Rock",
+  "Techno Lovers - Vocal Trance",
+  "Electro Trance",
+  "Psytrance",
+  "EDM Festival (drops?)",
+  "HipHop Workout",
+  NULL
+};
+
+static const char *g_radio_preset_urls[] = {
+  "https://0nlineradio.radioho.st/technolovers-hypertechno?ref=radio-browser26",
+  "https://breakz-high.rautemusik.fm/?ref=radiobrowser-LOVE",
+  "https://club-high.rautemusik.fm/?ref=radiobrowser-100-handsup",
+  "http://stream.gal.io/arrow",
+  "https://cast1.torontocast.com:4610/stream",
+  "https://stream.technolovers.fm/vocal-trance",
+  "https://trance-high.rautemusik.fm/?ref=radiobrowser",
+  "http://strm112.1.fm/psytrance_mobile_mp3",
+  "https://0nlineradio.radioho.st/0r-edm-festival?ref=rb26",
+  "https://stream.revma.ihrhls.com/zc7785",
+  NULL
+};
+
+
+qboolean G_admin_radio( gentity_t *ent, int skiparg )
+{
+  char arg[ MAX_STRING_CHARS ];
+  char adminName[ MAX_NAME_LENGTH ];
+  int  preset;
+  int  i;
+
+  if ( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( "^3!radio: ^7usage: !radio <url|number|stop>\n" );
+    ADMP( "^3!radio: ^7use ^5!radiolist^7 to see preset stations\n" );
+    return qfalse;
+  }
+
+  G_SayArgv( 1 + skiparg, arg, sizeof( arg ) );
+
+  if ( Q_stricmp( arg, "stop" ) == 0 )
+  {
+    AP( "radio stop" );
+    if ( ent )
+      Q_strncpyz( adminName, ent->client->pers.netname, sizeof( adminName ) );
+    else
+      Q_strncpyz( adminName, "console", sizeof( adminName ) );
+    AP( va( "print \"^3Radio: ^7stream stopped by %s^7\n\"", adminName ) );
+    return qtrue;
+  }
+
+  /* numeric preset selection */
+  preset = atoi( arg );
+  if ( preset >= 1 )
+  {
+    for ( i = 0; g_radio_preset_urls[ i ]; i++ )
+      ;
+    if ( preset > i )
+    {
+      ADMP( va( "^3!radio: ^7preset %d not found, use ^5!radiolist^7\n", preset ) );
+      return qfalse;
+    }
+    Q_strncpyz( arg, g_radio_preset_urls[ preset - 1 ], sizeof( arg ) );
+  }
+
+  /* basic URL sanity check */
+  if ( Q_stricmpn( arg, "http://", 7 ) != 0 && Q_stricmpn( arg, "https://", 8 ) != 0 )
+  {
+    ADMP( "^3!radio: ^7URL must start with http:// or https://\n" );
+    ADMP( "^3!radio: ^7or use a preset number from ^5!radiolist^7\n" );
+    return qfalse;
+  }
+
+  AP( va( "radio \"%s\"", arg ) );
+  if ( ent )
+    Q_strncpyz( adminName, ent->client->pers.netname, sizeof( adminName ) );
+  else
+    Q_strncpyz( adminName, "console", sizeof( adminName ) );
+  AP( va( "print \"^3Radio: ^7stream started by %s^7\n\"", adminName ) );
+  return qtrue;
+}
+
+
+qboolean G_admin_radiolist( gentity_t *ent, int skiparg )
+{
+  int i;
+
+  ADMBP_begin();
+  ADMBP( "^3Preset radio stations:\n" );
+  for ( i = 0; g_radio_preset_names[ i ]; i++ )
+    ADMBP( va( "  ^5%d^7 - %s\n", i + 1, g_radio_preset_names[ i ] ) );
+  ADMBP( "^7Use ^5!radio <number>^7 to start a preset or ^5!radio <url>^7 for a custom stream.\n" );
+  ADMBP( "^7Use ^5!radio stop^7 to stop the stream.\n" );
+  ADMBP_end();
+  return qtrue;
+}
 
 
 qboolean G_admin_putteam( gentity_t *ent, int skiparg )

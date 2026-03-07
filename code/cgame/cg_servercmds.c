@@ -2258,6 +2258,81 @@ static void CG_ParseSpawnpoints( void ){
 
 /*
 =================
+CG_Radio_WriteFile
+
+Writes the current radio URL (or "stop") to radio_current.txt so that
+the external companion player can react to it.
+=================
+*/
+static void CG_Radio_WriteFile( const char *url ) {
+	fileHandle_t f;
+	int          len;
+
+	trap_FS_FOpenFile( "radio_current.txt", &f, FS_WRITE );
+	if ( !f )
+		return;
+	len = strlen( url );
+	if ( len > 0 )
+		trap_FS_Write( url, len, f );
+	trap_FS_Write( "\n", 1, f );
+	trap_FS_FCloseFile( f );
+}
+
+/*
+=================
+CG_Radio_HandleServerCmd
+
+Handles the "radio" server command sent by the server admin.
+Writes the URL to disk for the companion player and mutes/restores
+the engine's own background music track.
+=================
+*/
+static char cg_radio_savedMusicVol[ 16 ] = "0.5";
+static qboolean cg_radioActive = qfalse;
+
+void CG_Radio_HandleServerCmd( void ) {
+	const char *url = CG_Argv( 1 );
+
+	if ( !url || !url[ 0 ] || Q_stricmp( url, "stop" ) == 0 ) {
+		CG_Radio_WriteFile( "stop" );
+		if ( cg_radioActive ) {
+			cg_radioActive = qfalse;
+			trap_Cvar_Set( "s_musicvolume", cg_radio_savedMusicVol );
+			CG_StartMusic();
+		}
+		return;
+	}
+
+	/* save current music volume and silence game music */
+	if ( !cg_radioActive ) {
+		trap_Cvar_VariableStringBuffer( "s_musicvolume",
+		                                cg_radio_savedMusicVol,
+		                                sizeof( cg_radio_savedMusicVol ) );
+		trap_S_StopBackgroundTrack();
+		trap_Cvar_Set( "s_musicvolume", "0" );
+		cg_radioActive = qtrue;
+	}
+
+	CG_Radio_WriteFile( url );
+}
+
+/*
+=================
+CG_Radio_Shutdown
+
+Called on cgame shutdown to notify the companion that the game stopped.
+=================
+*/
+void CG_Radio_Shutdown( void ) {
+	if ( cg_radioActive ) {
+		cg_radioActive = qfalse;
+		trap_Cvar_Set( "s_musicvolume", cg_radio_savedMusicVol );
+	}
+	CG_Radio_WriteFile( "stop" );
+}
+
+/*
+=================
 CG_ServerCommand
 
 The string has been tokenized and can be retrieved with
@@ -2585,6 +2660,11 @@ static void CG_ServerCommand( void ) {
 
         if ( !strcmp( cmd, "customvotes" ) ) {
 		CG_ParseCustomVotes();
+		return;
+	}
+
+	if ( !strcmp( cmd, "radio" ) ) {
+		CG_Radio_HandleServerCmd();
 		return;
 	}
 

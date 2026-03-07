@@ -2077,6 +2077,8 @@ void QDECL CG_Printf( const char *msg, ... );
 void QDECL CG_Error( const char *msg, ... ) __attribute__((noreturn));
 
 void CG_StartMusic( void );
+void CG_Radio_HandleServerCmd( void );
+void CG_Radio_Shutdown( void );
 
 void CG_UpdateCvars( void );
 
